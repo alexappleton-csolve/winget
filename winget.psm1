@@ -263,7 +263,7 @@ Function WG-UnInstall {
 
     #Check if application installed properly
 
-    if!(WG-List | Where-Object id -eq $appid) {
+    if(!(WG-List | Where-Object id -eq $appid)) {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid unintalled. " | Tee-Object -FilePath $logfile -Append
     }
     else {
