@@ -26,8 +26,6 @@
         Start-WGUpgrade: Updates individual application
         Start-WGInstall: Installs individual application based on application ID. appid parameter is mandatory
         Start-WGUninstall: Uninstalls individual application based on application ID.  appid parameter is mandatory
-    Creation date: April 8, 2022
-    Last Update: April 8, 2022
 
 #>
 
