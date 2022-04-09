@@ -31,6 +31,9 @@
         Test-WG: Tests winget path
 
 #>
+#Set TLS protocols.
+IF([Net.SecurityProtocolType]::Tls12) {[Net.ServicePointManager]::SecurityProtocol=[Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12}
+IF([Net.SecurityProtocolType]::Tls13) {[Net.ServicePointManager]::SecurityProtocol=[Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls13}
 
 #Set some global variables
 $Winget = Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Object name -like winget.exe | Where-Object fullname -notlike "*deleted*" | Select-Object -last 1 -ExpandProperty fullname
@@ -56,17 +59,18 @@ if(!(Test-WG)){
     exit
 }
 
-#Following function returns winget version
-Function Get-WGver {
-    [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
-}
-
-#Set TLS protocols.
-IF([Net.SecurityProtocolType]::Tls12) {[Net.ServicePointManager]::SecurityProtocol=[Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12}
-IF([Net.SecurityProtocolType]::Tls13) {[Net.ServicePointManager]::SecurityProtocol=[Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls13}
-
 #Run winget to list apps and accept source agrements (necessary on first run)
 & $Winget list --accept-source-agreements | Out-Null
+
+#Following function returns winget version
+Function Get-WGver {
+    if(!(Test-WG)){
+    Write-Output "Missing"
+    }
+    else{
+    [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
+    }
+}
 
 #Following function will enable winget
 Function Enable-WG {
