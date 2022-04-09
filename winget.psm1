@@ -77,7 +77,8 @@ Function Enable-WG {
     Try{
         (New-Object System.Net.WebClient).DownloadFile($wgdl, $dl)
     }
-    Catch{
+    Catch [Exception] {
+        $_.exception | Out-File -FilePath $logfile -Append
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Unable to download winget " | Tee-Object -FilePath $logfile -Append
     }
     #add the package
