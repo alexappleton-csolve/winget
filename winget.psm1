@@ -257,7 +257,7 @@ Function WG-UnInstall {
     $failedtouninstall = $false
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UNINSTALL START FOR APPLICATION ID: '$appid'] " | Tee-Object -FilePath $logfile -Append
 
-        $results = & $Winget uinstall --id $appid --accept-source-agreements -h
+        $results = & $Winget uninstall --id $appid --accept-source-agreements -h
     
     $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
 
