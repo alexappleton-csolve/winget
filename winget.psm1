@@ -187,7 +187,7 @@ Function WG-Upgrade {
     $appversion = (WG-List | Where-Object Id -EQ $appid).Version
     $availversion = (WG-List | Where-Object Id -EQ $appid).AvailableVersion
 
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE START FOR APPLICATION ID: '$App.Id)' " | Tee-Object -FilePath $logfile -Append
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE START FOR APPLICATION ID: '$appid)' " | Tee-Object -FilePath $logfile -Append
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Upgrading from $appversion to $availversion..." | Tee-Object -FilePath $logfile -Append
     
     #Run winget
@@ -202,7 +202,7 @@ Function WG-Upgrade {
 				$InstallBAD += 1
             }
 			else {
-			"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Updated completed !" | Tee-Object -FilePath $logfile -Append
+			"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Update completed !" | Tee-Object -FilePath $logfile -Append
 			$InstallOK += 1
 			}
 	"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE FINISHED FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append
