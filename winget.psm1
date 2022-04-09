@@ -250,7 +250,7 @@ Function Start-WGInstall {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   $appid install not completed or failed.  Please review the logs. " | Tee-Object -FilePath $logfile -Append
         }
     }
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   INSTALL FINISHED FOR APPLICATION ID: '$appid)' " | Tee-Object -FilePath $logfile -Append    
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   INSTALL FINISHED FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append    
 }
 
 #following function attempts to uninstall based on application ID.  appid parameter is mandatory
@@ -291,5 +291,5 @@ Function Start-WGUninstall {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   $appid uninstall possibly failed.  Please check the logs. " | Tee-Object -FilePath $logfile -Append
         }
     }
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UNINSTALL FINISHED FOR APPLICATION ID: '$appid)' " | Tee-Object -FilePath $logfile -Append    
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UNINSTALL FINISHED FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append    
 }
