@@ -28,24 +28,13 @@
         Start-WGInstall: Installs individual application based on application ID. appid parameter is mandatory
         Start-WGUninstall: Uninstalls individual application based on application ID.  appid parameter is mandatory
         Test-WG: Tests winget path
-        
+
 #>
 
-#Don't forget TLS stuff...
-IF([Net.SecurityProtocolType]::Tls12) {[Net.ServicePointManager]::SecurityProtocol=[Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12}
-IF([Net.SecurityProtocolType]::Tls13) {[Net.ServicePointManager]::SecurityProtocol=[Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls13}
-
-#Test to ensure winget is available and install it if not.
-if(!(Test-WG)) {
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Winget missing.  Attempting install..." | Tee-Object -FilePath $logfile -Append
-    Enable-WG
-}
-
 #Set some global variables
+$Winget = Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Object name -like winget.exe | Where-Object fullname -notlike "*deleted*" | Select-Object -last 1 -ExpandProperty fullname
 $logfile = "C:\Windows\Temp\ps_winget.log"
 $dl = "C:\windows\Temp\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-$Winget = Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Object name -like winget.exe | Where-Object fullname -notlike "*deleted*" | Select-Object -last 1 -ExpandProperty fullname
-$wgver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
 $wgdl = "https://aka.ms/getwinget"
 $previewurl = "https://github.com/microsoft/winget-cli/releases/download/v1.3.431/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
 $previewver = "1.18.2202.12001"
@@ -55,13 +44,17 @@ if ([System.IO.File]::Exists($logfile)) {
     Rename-Item -Path $logfile -NewName "ps_winget$(get-date -f "yyyy-MM-dd HH-mm-ss").log"
 }
 
-#Run winget to list apps and accept source agrements (necessary on first run)
-& $Winget list --accept-source-agreements | Out-Null
-
 #Following function tests winget path
 Function Test-WG {
     Test-Path -Path $winget
 }
+
+#Set TLS protocols.
+IF([Net.SecurityProtocolType]::Tls12) {[Net.ServicePointManager]::SecurityProtocol=[Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12}
+IF([Net.SecurityProtocolType]::Tls13) {[Net.ServicePointManager]::SecurityProtocol=[Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls13}
+
+#Run winget to list apps and accept source agrements (necessary on first run)
+& $Winget list --accept-source-agreements | Out-Null
 
 #Following function will enable winget
 Function Enable-WG {
@@ -72,7 +65,6 @@ Function Enable-WG {
     #One test to see if installed
     if(!(Test-WG)) {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Winget missing after install." | Tee-Object -FilePath $logfile -Append
-        exit
     }
     else {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Winget installed !" | Tee-Object -FilePath $logfile -Append
@@ -81,6 +73,7 @@ Function Enable-WG {
 
 #Following function enables the preview build of winget
 Function Enable-WGPreview {
+    $wgver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
     if ($wgver -lt $previewver) {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Updating Winget to Preview version..." | Tee-Object -FilePath $logfile -Append
         #download the package
