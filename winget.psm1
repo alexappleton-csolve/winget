@@ -75,11 +75,12 @@ Function Enable-WG {
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Installing Winget..." | Tee-Object -FilePath $logfile -Append
     #download the package
     Try{
-        (New-Object System.Net.WebClient).DownloadFile($wgdl, $dl)
+        (New-Object System.Net.WebClient).DownloadFile($wgdl, $dl) | out-null
     }
     Catch [Exception] {
         $_.exception | Out-File -FilePath $logfile -Append
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Unable to download winget " | Tee-Object -FilePath $logfile -Append
+        exit
     }
     #add the package
     Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense | Out-File -FilePath $logfile -Append
