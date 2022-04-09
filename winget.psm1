@@ -38,18 +38,33 @@ $logfile = "C:\Windows\Temp\ps_winget.log"
 $Winget = Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Object name -like winget.exe | Where-Object fullname -notlike "*deleted*" | Select-Object -last 1 -ExpandProperty fullname
 $wgver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
 $previewurl = "https://github.com/microsoft/winget-cli/releases/download/v1.3.431/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
+$previewver = "1.18.2202.12001"
 
 #archive existing logfile
 if ([System.IO.File]::Exists($logfile)) {
     Rename-Item -Path $logfile -NewName "ps_winget$(get-date -f "yyyy-MM-dd HH-mm-ss").log"
 }
 
+#Test to ensure winget is available
+
+
+
 #Run winget to list apps and accept source agrements (necessary on first run)
 & $Winget list --accept-source-agreements | Out-Null
 
+#Following function tests winget path
+Function Test-WG {
+    Test-Path -Path $winget
+}
+
+#Following function will enable winget
+Function Enable-WG {
+    
+}
+
 #Following function enables the preview build of winget
 Function Enable-WGPreview {
-    if ($wgver -lt '1.18.2202.12001') {
+    if ($wgver -lt $previewver) {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Updating Winget to Preview version..." | Tee-Object -FilePath $logfile -Append
         $dl = "C:\windows\Temp\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
         #download the package
