@@ -239,7 +239,7 @@ Function WG-Install {
     #Check if application installed properly
 
     if(WG-List | Where-Object id -eq $appid) {
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid intalled. " | Tee-Object -FilePath $logfile -Append
+        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid installed. " | Tee-Object -FilePath $logfile -Append
     }
     else {
 
@@ -252,7 +252,7 @@ Function WG-Install {
             start-sleep -Seconds 30
         }
         if(WG-List | Where-Object id -eq $appid) {
-            "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid intalled. " | Tee-Object -FilePath $logfile -Append
+            "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid installed. " | Tee-Object -FilePath $logfile -Append
         }
         else {
         $failedtoinstall=$true
@@ -275,14 +275,30 @@ Function WG-UnInstall {
     
     $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
 
-    #Check if application installed properly
-
+    #Check if application uninstalled properly
+    
+   
     if(!(WG-List | Where-Object id -eq $appid)) {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid uninstalled. " | Tee-Object -FilePath $logfile -Append
     }
     else {
+        
+        if(ProcessExists("msiexec.exe")) {
+            "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Waiting for msiexec.exe to finish...' " | Tee-Object -FilePath $logfile -Append 
+            $procid = (get-process msiexec.exe).Id
+            Wait-process -id $procid 
+        }
+        else{
+            #just doing a bit of a sleep to wait for the uninstall to finish
+            start-sleep -Seconds 30
+        }
+        if(!(WG-List | Where-Object id -eq $appid)) {
+            "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid uninstalled. " | Tee-Object -FilePath $logfile -Append
+        }
+        else {
         $failedtouninstall=$true
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   $appid uninstall failed. " | Tee-Object -FilePath $logfile -Append
+        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   $appid uninstall possibly failed.  Please check the logs. " | Tee-Object -FilePath $logfile -Append
+        }
     }
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UNINSTALL FINISHED FOR APPLICATION ID: '$appid)' " | Tee-Object -FilePath $logfile -Append    
 }
