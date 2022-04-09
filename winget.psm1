@@ -51,8 +51,9 @@ if ([System.IO.File]::Exists($logfile)) {
 #Following function tests winget path
 Function Test-WG {
     Try{
-        Test-Path -Path $winget 
+        Test-Path -Path $winget | Out-Null
         & $Winget list --accept-source-agreements | Out-Null
+        $true
     }
     Catch{
         $false
