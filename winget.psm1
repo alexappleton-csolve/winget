@@ -21,8 +21,8 @@
 .NOTES
     Functions:
         Enable-WGPreview: Installs the preview module as identified in the $previewurl variable
-        Request-WGList: Displays a list of applications currently installed
-        Request-WGUpgrade: Displays a list of outdated apps
+        Get-WGList: Displays a list of applications currently installed
+        Get-WGUpgrade: Displays a list of outdated apps
         Start-WGUpgrade: Updates individual application
         Start-WGInstall: Installs individual application based on application ID. appid parameter is mandatory
         Start-WGUninstall: Uninstalls individual application based on application ID.  appid parameter is mandatory
@@ -68,7 +68,7 @@ Function Enable-WGPreview {
 }
 
 #Following function lists the available applications in winget
-Function Request-WGList {
+Function Get-WGList {
 	class Application {
         [string]$Name
         [string]$Id
@@ -122,7 +122,7 @@ Function Request-WGList {
 }
 
 #following function lists only the apps that require updating
-function Request-WGUpgrade {
+function Get-WGUpgrade {
 	class Software {
         [string]$Name
         [string]$Id
@@ -185,8 +185,8 @@ Function Start-WGUpgrade {
     )
     
     $FailedToUpgrade = $false
-    $appversion = (Request-WGList | Where-Object Id -EQ $appid).Version
-    $availversion = (Request-WGList | Where-Object Id -EQ $appid).AvailableVersion
+    $appversion = (Get-WGList | Where-Object Id -EQ $appid).Version
+    $availversion = (Get-WGList | Where-Object Id -EQ $appid).AvailableVersion
 
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE START FOR APPLICATION ID: '$appid)' " | Tee-Object -FilePath $logfile -Append
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Upgrading from $appversion to $availversion..." | Tee-Object -FilePath $logfile -Append
@@ -197,7 +197,7 @@ Function Start-WGUpgrade {
 
         #Check if application updated properly
 
-        if(Request-WGUpgrade| Where-Object id -eq $appid) {
+        if(Get-WGUpgrade| Where-Object id -eq $appid) {
       			$FailedToUpgrade = $true
 				"$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Update failed. Please review the log file. " | Tee-Object -FilePath $logfile -Append
 				$InstallBAD += 1
@@ -231,7 +231,7 @@ Function Start-WGInstall {
 
     #Check if application installed properly
 
-    if(Request-WGList | Where-Object id -eq $appid) {
+    if(Get-WGList | Where-Object id -eq $appid) {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid installed. " | Tee-Object -FilePath $logfile -Append
     }
     else {
@@ -244,7 +244,7 @@ Function Start-WGInstall {
         else{
             start-sleep -Seconds 30
         }
-        if(Request-WGList | Where-Object id -eq $appid) {
+        if(Get-WGList | Where-Object id -eq $appid) {
             "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid installed. " | Tee-Object -FilePath $logfile -Append
         }
         else {
@@ -271,7 +271,7 @@ Function Start-WGUninstall {
     #Check if application uninstalled properly
     
    
-    if(!(Request-WGList | Where-Object id -eq $appid)) {
+    if(!(Get-WGList | Where-Object id -eq $appid)) {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid uninstalled. " | Tee-Object -FilePath $logfile -Append
     }
     else {
@@ -285,7 +285,7 @@ Function Start-WGUninstall {
             #just doing a bit of a sleep to wait for the uninstall to finish
             start-sleep -Seconds 30
         }
-        if(!(Request-WGList | Where-Object id -eq $appid)) {
+        if(!(Get-WGList | Where-Object id -eq $appid)) {
             "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid uninstalled. " | Tee-Object -FilePath $logfile -Append
         }
         else {
