@@ -11,7 +11,7 @@
     Module will try to make the winget package manager work for automation and integration with PowerShell
     
     Module is provided "AS IS". There are no warranties or conditions OF ANY KIND, expressed or implied, including,
-    without limitation, any warranties or conditions of TITLE, NONINFRINGEMENT, MERCHANTABILITY, or FITNESS FOR APARTICULAR
+    without limitation, any warranties or conditions of TITLE, NONINFRINGEMENT, MERCHANTABILITY, or FITNESS FOR ANY PARTICULAR
     PURPOSE.  You are solely responsible for determining the appropriateness of using or redistributing the module 
     and assume any risks associated with the use of the work. 
 
@@ -180,7 +180,7 @@ function WG-Outdated {
 Function WG-Update ($app) {
     
 	$FailedToUpgrade = $false
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE START FOR APPLICATION ID: '$($App.Id)'] " | Tee-Object -FilePath $logfile -Append
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE START FOR APPLICATION ID: '$($App.Id)' " | Tee-Object -FilePath $logfile -Append
     <#
 	If ($($app.id -eq "Microsoft.Teams")) {
         $teamscount = (WG-List | Where-object {$_.Id -eq 'Microsoft.Teams'}).count
@@ -213,7 +213,7 @@ Function WG-Update ($app) {
 			"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $($app.Name) updated to $($app.AvailableVersion) !" | Tee-Object -FilePath $logfile -Append
 			$InstallOK += 1
 			}
-	"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE FINISHED FOR APPLICATION ID: '$($App.Id)'] " | Tee-Object -FilePath $logfile -Append
+	"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE FINISHED FOR APPLICATION ID: '$($App.Id)' " | Tee-Object -FilePath $logfile -Append
 }
 
 #following function attemps to install based on application ID. appid parameter is mandatory
@@ -225,7 +225,7 @@ Function WG-Install {
         [string]$scope
     )
     $failedtoinstall = $false
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   INSTALL START FOR APPLICATION ID: '$appid'] " | Tee-Object -FilePath $logfile -Append
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   INSTALL START FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append
 
     if($scope){
         $results = & $Winget install --id $appid --scope $scope --accept-package-agreements --accept-source-agreements -h
@@ -245,7 +245,7 @@ Function WG-Install {
         $failedtoinstall=$true
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   $appid install failed. " | Tee-Object -FilePath $logfile -Append
     }
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   INSTALL FINISHED FOR APPLICATION ID: '$appid)'] " | Tee-Object -FilePath $logfile -Append    
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   INSTALL FINISHED FOR APPLICATION ID: '$appid)' " | Tee-Object -FilePath $logfile -Append    
 }
 
 #following function attempts to uninstall based on application ID.  appid parameter is mandatory
@@ -255,7 +255,7 @@ Function WG-UnInstall {
         [string]$appid
     )
     $failedtouninstall = $false
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UNINSTALL START FOR APPLICATION ID: '$appid'] " | Tee-Object -FilePath $logfile -Append
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UNINSTALL START FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append
 
         $results = & $Winget uninstall --id $appid --accept-source-agreements -h
     
@@ -264,11 +264,11 @@ Function WG-UnInstall {
     #Check if application installed properly
 
     if(!(WG-List | Where-Object id -eq $appid)) {
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid unintalled. " | Tee-Object -FilePath $logfile -Append
+        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid uninstalled. " | Tee-Object -FilePath $logfile -Append
     }
     else {
         $failedtouninstall=$true
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   $appid uninstall failed. " | Tee-Object -FilePath $logfile -Append
     }
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UNINSTALL FINISHED FOR APPLICATION ID: '$appid)'] " | Tee-Object -FilePath $logfile -Append    
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UNINSTALL FINISHED FOR APPLICATION ID: '$appid)' " | Tee-Object -FilePath $logfile -Append    
 }
