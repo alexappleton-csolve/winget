@@ -49,7 +49,7 @@ if ([System.IO.File]::Exists($logfile)) {
 & $Winget list --accept-source-agreements | Out-Null
 
 #Following function enables the preview build of winget
-Function WG-EnablePreview {
+Function Enable-WGPreview {
     if ($wgver -lt '1.18.2202.12001') {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Updating Winget to Preview version..." | Tee-Object -FilePath $logfile -Append
         $dl = "C:\windows\Temp\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
@@ -176,7 +176,7 @@ function WG-Outdated {
     return $upgradeList
 }
 
-#following function attempts to upgrade based on the application ID input variable $app.  I might change this a bit to remove the argument in the function and make it a parameter
+#following function attempts to upgrade based on the application ID input parameter $appid  
 Function WG-Upgrade {
     Param(
         [Parameter(Mandatory=$true)]
