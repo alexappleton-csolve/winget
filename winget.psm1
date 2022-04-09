@@ -54,21 +54,20 @@ Function Test-WG {
         Test-Path -Path $winget -ErrorAction SilentlyContinue
     }
     Catch{
-        return $false
+        $false
     }
 }
 
-#Check to make sure winget is there
+#Check to make sure winget is there and works
 Try {
     Test-WG
+    & $Winget list --accept-source-agreements | Out-Null
 }
 Catch{
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Winget missing!  Please run: Enable-WG" | Tee-Object -FilePath $logfile -Append
     exit
 }
 
-#Run winget to list apps and accept source agrements (necessary on first run)
-& $Winget list --accept-source-agreements | Out-Null
 
 #Following function returns winget version
 Function Get-WGver {
