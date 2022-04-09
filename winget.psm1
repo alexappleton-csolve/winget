@@ -62,10 +62,6 @@ Function Test-WG {
 
 #Following function returns winget version
 Function Get-WGver {
-    if($null -eq $winget){
-        Write-Output "Missing"
-        exit
-    }
     if((Test-WG)){
         [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
     }
