@@ -50,7 +50,7 @@ if ([System.IO.File]::Exists($logfile)) {
 
 #Following function tests winget path
 Function Test-WG {
-    Test-Path -Path $winget
+    Test-Path -Path $winget -ErrorAction SilentlyContinue
 }
 
 #Check to make sure winget is there
