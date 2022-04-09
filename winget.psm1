@@ -226,7 +226,7 @@ Function Start-WGUpgrade {
     $appversion = (Get-WGList | Where-Object Id -EQ $appid).Version
     $availversion = (Get-WGList | Where-Object Id -EQ $appid).AvailableVersion
 
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE START FOR APPLICATION ID: '$appid)' " | Tee-Object -FilePath $logfile -Append
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE START FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Upgrading from $appversion to $availversion..." | Tee-Object -FilePath $logfile -Append
     
     #Run winget
