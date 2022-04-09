@@ -84,7 +84,7 @@ Function Enable-WG {
     }
     #add the package
     Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense | Out-File -FilePath $logfile -Append
-    #One test to see if installed
+    #test to see if installed
     if(!(Test-WG)) {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Winget missing after install." | Tee-Object -FilePath $logfile -Append
     }
