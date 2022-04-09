@@ -36,7 +36,7 @@ IF([Net.SecurityProtocolType]::Tls13) {[Net.ServicePointManager]::SecurityProtoc
 
 #Set some global variables
 $logfile = "C:\Windows\Temp\ps_winget.log"
-$Winget = Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Object name -like winget.exe | Where-Object fullname -notlike "*deleted*" | Select-Object -ExpandProperty fullname
+$Winget = Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Object name -like winget.exe | Where-Object fullname -notlike "*deleted*" | Select-Object -last 1 -ExpandProperty fullname
 $wgver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
 $previewurl = "https://github.com/microsoft/winget-cli/releases/download/v1.3.431/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
 
@@ -58,7 +58,7 @@ Function WG-EnablePreview {
         #install the package
         Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense | out-null
         #update the global variables
-        $Winget = Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Object name -like winget.exe | Where-Object fullname -notlike "*deleted*" | Select-Object -ExpandProperty fullname
+        $Winget = Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Object name -like winget.exe | Where-Object fullname -notlike "*deleted*" | Select-Object -last 1 -ExpandProperty fullname
 		$wgver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
     }
     else{
