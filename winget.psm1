@@ -24,6 +24,7 @@
         Enable-WGPreview: Installs the preview module as identified in the $previewurl variable
         Get-WGList: Displays a list of applications currently installed
         Get-WGUpgrade: Displays a list of outdated apps
+        Get-WGVer: Displays current version of winget
         Start-WGUpgrade: Updates individual application
         Start-WGInstall: Installs individual application based on application ID. appid parameter is mandatory
         Start-WGUninstall: Uninstalls individual application based on application ID.  appid parameter is mandatory
@@ -47,6 +48,17 @@ if ([System.IO.File]::Exists($logfile)) {
 #Following function tests winget path
 Function Test-WG {
     Test-Path -Path $winget
+}
+
+#Check to make sure winget is there
+if(!(Test-WG)){
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Winget missing!  Please run: Enable-WG" | Tee-Object -FilePath $logfile -Append
+    exit
+}
+
+#Following function returns winget version
+Function Get-WGver {
+    [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
 }
 
 #Set TLS protocols.
