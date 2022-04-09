@@ -242,8 +242,8 @@ Function WG-Install {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid installed. " | Tee-Object -FilePath $logfile -Append
     }
     else {
-
-        if(get-process msiexec.exe) {
+        $msiexec = Get-process msiexec.exe -ErrorAction SilentlyContinue
+        if($msiexec) {
             "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Waiting for msiexec.exe to finish...' " | Tee-Object -FilePath $logfile -Append 
             $procid = (get-process msiexec.exe).Id
             Wait-process -id $procid 
@@ -282,8 +282,8 @@ Function WG-UnInstall {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid uninstalled. " | Tee-Object -FilePath $logfile -Append
     }
     else {
-        
-        if(get-process msiexec.exe) {
+        $msiexec = Get-process msiexec.exe -ErrorAction SilentlyContinue
+        if($msiexec) {
             "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Waiting for msiexec.exe to finish...' " | Tee-Object -FilePath $logfile -Append 
             $procid = (get-process msiexec.exe).Id
             Wait-process -id $procid 
