@@ -242,8 +242,22 @@ Function WG-Install {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid intalled. " | Tee-Object -FilePath $logfile -Append
     }
     else {
+
+        if(!ProcessExists("msiexec.exe")) {
+            "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Waiting for msiexec.exe to finish...' " | Tee-Object -FilePath $logfile -Append 
+            $procid = (get-process msiexec.exe).Id
+            Wait-process -id $procid 
+        }
+        else{
+            start-sleep -Seconds 30
+        }
+        if(WG-List | Where-Object id -eq $appid) {
+            "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid intalled. " | Tee-Object -FilePath $logfile -Append
+        }
+        else {
         $failedtoinstall=$true
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   $appid install failed. " | Tee-Object -FilePath $logfile -Append
+        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   $appid install not completed or failed.  Please review the logs. " | Tee-Object -FilePath $logfile -Append
+        }
     }
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   INSTALL FINISHED FOR APPLICATION ID: '$appid)' " | Tee-Object -FilePath $logfile -Append    
 }
