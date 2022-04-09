@@ -243,7 +243,7 @@ Function WG-Install {
     }
     else {
 
-        if(!ProcessExists("msiexec.exe")) {
+        if(ProcessExists("msiexec.exe")) {
             "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Waiting for msiexec.exe to finish...' " | Tee-Object -FilePath $logfile -Append 
             $procid = (get-process msiexec.exe).Id
             Wait-process -id $procid 
