@@ -178,10 +178,12 @@ function WG-Outdated {
 
 #following function attempts to upgrade based on the application ID input variable $app.  I might change this a bit to remove the argument in the function and make it a parameter
 Function WG-Upgrade {
-    [Parameter(Mandatory=$true)]
+    Param(
+        [Parameter(Mandatory=$true)]
         [string]$appid
-    $FailedToUpgrade = $false
+    )
     
+    $FailedToUpgrade = $false
     $appversion = (WG-List | Where-Object Id -EQ $appid).Version
     $availversion = (WG-List | Where-Object Id -EQ $appid).AvailableVersion
 
