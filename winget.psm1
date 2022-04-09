@@ -74,7 +74,13 @@ Function Get-WGver {
 Function Enable-WG {
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Installing Winget..." | Tee-Object -FilePath $logfile -Append
     #download the package
-    (New-Object System.Net.WebClient).DownloadFile($wgdl, $dl)
+    Try{
+        (New-Object System.Net.WebClient).DownloadFile($wgdl, $dl)
+    }
+    Catch{
+        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Unable to download winget " | Tee-Object -FilePath $logfile -Append
+    }
+    #add the package
     Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense | Out-File -FilePath $logfile -Append
     #One test to see if installed
     if(!(Test-WG)) {
