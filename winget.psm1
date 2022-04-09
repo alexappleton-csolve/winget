@@ -59,15 +59,13 @@ Function Test-WG {
 }
 
 #Check to make sure winget is there and works
-Try {
-    Test-WG
-    & $Winget list --accept-source-agreements | Out-Null -ErrorAction SilentlyContinue
-}
-Catch{
+if(!(Test-WG)){
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Winget missing!  Please run: Enable-WG" | Tee-Object -FilePath $logfile -Append
     exit
 }
-
+else {
+    & $Winget list --accept-source-agreements | Out-Null -ErrorAction SilentlyContinue
+}
 
 #Following function returns winget version
 Function Get-WGver {
