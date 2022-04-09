@@ -20,11 +20,12 @@
 
 .NOTES
     Functions:
-        WG-EnablePreview: Installs the preview module as identified in the $previewurl variable
-        WG-List: Displays a list of applications currently installed
-        WG-Outdated: Displays a list of outdated apps
-        WG-Update ($app): Updates individual application
-        WG-Install: Installs individual application based on application ID. appid parameter is mandatory
+        Enable-WGPreview: Installs the preview module as identified in the $previewurl variable
+        Request-WGList: Displays a list of applications currently installed
+        Request-WGUpgrade: Displays a list of outdated apps
+        Start-WGUpgrade: Updates individual application
+        Start-WGInstall: Installs individual application based on application ID. appid parameter is mandatory
+        Start-WGUninstall: Uninstalls individual application based on application ID.  appid parameter is mandatory
     Creation date: April 8, 2022
     Last Update: April 8, 2022
 
@@ -67,7 +68,7 @@ Function Enable-WGPreview {
 }
 
 #Following function lists the available applications in winget
-Function WG-List {
+Function Request-WGList {
 	class Application {
         [string]$Name
         [string]$Id
@@ -121,7 +122,7 @@ Function WG-List {
 }
 
 #following function lists only the apps that require updating
-function WG-Outdated {
+function Request-WGUpgrade {
 	class Software {
         [string]$Name
         [string]$Id
@@ -177,15 +178,15 @@ function WG-Outdated {
 }
 
 #following function attempts to upgrade based on the application ID input parameter $appid  
-Function WG-Upgrade {
+Function Start-WGUpgrade {
     Param(
         [Parameter(Mandatory=$true)]
         [string]$appid
     )
     
     $FailedToUpgrade = $false
-    $appversion = (WG-List | Where-Object Id -EQ $appid).Version
-    $availversion = (WG-List | Where-Object Id -EQ $appid).AvailableVersion
+    $appversion = (Request-WGList | Where-Object Id -EQ $appid).Version
+    $availversion = (Request-WGList | Where-Object Id -EQ $appid).AvailableVersion
 
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE START FOR APPLICATION ID: '$appid)' " | Tee-Object -FilePath $logfile -Append
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Upgrading from $appversion to $availversion..." | Tee-Object -FilePath $logfile -Append
@@ -196,9 +197,9 @@ Function WG-Upgrade {
 
         #Check if application updated properly
 
-        if(WG-Outdated | Where-Object id -eq $appid) {
+        if(WRequest-WGUpgrade| Where-Object id -eq $appid) {
       			$FailedToUpgrade = $true
-				"$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Update failed. " | Tee-Object -FilePath $logfile -Append
+				"$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Update failed. Please review the log file. " | Tee-Object -FilePath $logfile -Append
 				$InstallBAD += 1
             }
 			else {
@@ -209,7 +210,7 @@ Function WG-Upgrade {
 }
 
 #following function attemps to install based on application ID. appid parameter is mandatory
-Function WG-Install {
+Function Start-WGInstall {
     Param(
         [Parameter(Mandatory=$true)]
         [string]$appid,
@@ -230,7 +231,7 @@ Function WG-Install {
 
     #Check if application installed properly
 
-    if(WG-List | Where-Object id -eq $appid) {
+    if(Request-WGList | Where-Object id -eq $appid) {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid installed. " | Tee-Object -FilePath $logfile -Append
     }
     else {
@@ -243,7 +244,7 @@ Function WG-Install {
         else{
             start-sleep -Seconds 30
         }
-        if(WG-List | Where-Object id -eq $appid) {
+        if(Request-WGList | Where-Object id -eq $appid) {
             "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid installed. " | Tee-Object -FilePath $logfile -Append
         }
         else {
@@ -255,7 +256,7 @@ Function WG-Install {
 }
 
 #following function attempts to uninstall based on application ID.  appid parameter is mandatory
-Function WG-UnInstall {
+Function Start-WGUninstall {
     Param(
         [Parameter(Mandatory=$true)]
         [string]$appid
@@ -270,7 +271,7 @@ Function WG-UnInstall {
     #Check if application uninstalled properly
     
    
-    if(!(WG-List | Where-Object id -eq $appid)) {
+    if(!(Request-WGList | Where-Object id -eq $appid)) {
         "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid uninstalled. " | Tee-Object -FilePath $logfile -Append
     }
     else {
@@ -284,7 +285,7 @@ Function WG-UnInstall {
             #just doing a bit of a sleep to wait for the uninstall to finish
             start-sleep -Seconds 30
         }
-        if(!(WG-List | Where-Object id -eq $appid)) {
+        if(!(Request-WGList | Where-Object id -eq $appid)) {
             "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid uninstalled. " | Tee-Object -FilePath $logfile -Append
         }
         else {
