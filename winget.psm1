@@ -50,11 +50,19 @@ if ([System.IO.File]::Exists($logfile)) {
 
 #Following function tests winget path
 Function Test-WG {
-    Test-Path -Path $winget -ErrorAction SilentlyContinue
+    Try{
+        Test-Path -Path $winget -ErrorAction SilentlyContinue
+    }
+    Catch{
+        return $false
+    }
 }
 
 #Check to make sure winget is there
-if(!(Test-WG)){
+Try {
+    Test-WG
+}
+Catch{
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Winget missing!  Please run: Enable-WG" | Tee-Object -FilePath $logfile -Append
     exit
 }
