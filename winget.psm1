@@ -197,7 +197,7 @@ Function Start-WGUpgrade {
 
         #Check if application updated properly
 
-        if(WRequest-WGUpgrade| Where-Object id -eq $appid) {
+        if(Request-WGUpgrade| Where-Object id -eq $appid) {
       			$FailedToUpgrade = $true
 				"$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Update failed. Please review the log file. " | Tee-Object -FilePath $logfile -Append
 				$InstallBAD += 1
