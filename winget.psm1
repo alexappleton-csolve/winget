@@ -177,43 +177,33 @@ function WG-Outdated {
 }
 
 #following function attempts to upgrade based on the application ID input variable $app.  I might change this a bit to remove the argument in the function and make it a parameter
-Function WG-Update ($app) {
+Function WG-Upgrade {
+    [Parameter(Mandatory=$true)]
+        [string]$appid
+    $FailedToUpgrade = $false
     
-	$FailedToUpgrade = $false
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE START FOR APPLICATION ID: '$($App.Id)' " | Tee-Object -FilePath $logfile -Append
-    <#
-	If ($($app.id -eq "Microsoft.Teams")) {
-        $teamscount = (WG-List | Where-object {$_.Id -eq 'Microsoft.Teams'}).count
-        If ($teamscount -gt 1) {
-            Write-Host "[LOG]   Found $teamscount installations of Microsoft.Teams" | Tee-Object -file $logfile -Append
-		}
-		If((gp HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*).DisplayName -Contains "Teams Machine-Wide Installer" -eq $true) {
-            Write-Host "[LOG]   Uninstalling Teams Machine-Wide Installer..." | Tee-Object -file $logfile -Append
-            $MachineWide = Get-WmiObject -Class Win32_Product | Where-Object{$_.Name -eq "Teams Machine-Wide Installer"}
-			$MachineWide.Uninstall() | out-null
-            Write-Host "[LOG]   Installing Microsoft.Teams..." | Tee-Object -file $logfile -Append
-			$upgradeResult = & $Winget install --id Microsoft.Teams -all --accept-package-agreements --accept-source-agreements -h | Out-String
-         } 
-	}
-	#>
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Updating $($app.Name) from $($app.Version) to $($app.AvailableVersion)..." | Tee-Object -FilePath $logfile -Append
+    $appversion = (WG-List | Where-Object Id -EQ $appid).Version
+    $availversion = (WG-List | Where-Object Id -EQ $appid).AvailableVersion
+
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE START FOR APPLICATION ID: '$App.Id)' " | Tee-Object -FilePath $logfile -Append
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Upgrading from $appversion to $availversion..." | Tee-Object -FilePath $logfile -Append
     
     #Run winget
-    $results = & $Winget upgrade --id $($app.Id) --all --accept-package-agreements --accept-source-agreements -h 
+    $results = & $Winget upgrade --id $appId --all --accept-package-agreements --accept-source-agreements -h 
     $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
 
         #Check if application updated properly
 
-        if(WG-Outdated | Where-Object id -eq $($app.Id)) {
+        if(WG-Outdated | Where-Object id -eq $appid) {
       			$FailedToUpgrade = $true
-				"$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   $($app.Name) update failed. " | Tee-Object -FilePath $logfile -Append
+				"$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Update failed. " | Tee-Object -FilePath $logfile -Append
 				$InstallBAD += 1
             }
 			else {
-			"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $($app.Name) updated to $($app.AvailableVersion) !" | Tee-Object -FilePath $logfile -Append
+			"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Updated completed !" | Tee-Object -FilePath $logfile -Append
 			$InstallOK += 1
 			}
-	"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE FINISHED FOR APPLICATION ID: '$($App.Id)' " | Tee-Object -FilePath $logfile -Append
+	"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE FINISHED FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append
 }
 
 #following function attemps to install based on application ID. appid parameter is mandatory
