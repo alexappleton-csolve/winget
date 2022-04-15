@@ -45,7 +45,7 @@ $previewver = "1.18.2202.12001"
 
 #archive existing logfile
 if ([System.IO.File]::Exists($logfile)) {
-    Rename-Item -Path $logfile -NewName "ps_winget$(get-date -f "yyyy-MM-dd HH-mm-ss").log"
+    Rename-Item -Path $logfile -NewName "ps_winget$(get-date -f "yyyy-MM-dd HH-mm-ss").log" -ErrorAction SilentlyContinue
 }
 
 #Following function tests winget path
@@ -95,19 +95,23 @@ Function Enable-WG {
 
 #Following function enables the preview build of winget
 Function Enable-WGPreview {
-    $wgver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
-    if ($wgver -lt $previewver) {
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Updating Winget to Preview version..." | Tee-Object -FilePath $logfile -Append
-        #download the package
-        (New-Object System.Net.WebClient).DownloadFile($previewurl, $dl)
-        #install the package
-        Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense | Out-File -FilePath $logfile -Append
-        #update the global variables
-        $Winget = Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Object name -like winget.exe | Where-Object fullname -notlike "*deleted*" | Select-Object -last 1 -ExpandProperty fullname
-		$wgver = [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Installing winget preview version..." | Tee-Object -FilePath $logfile -Append
+    Try{
+        (New-Object System.Net.WebClient).DownloadFile($previewurl, $dl) | out-null
     }
-    else{
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Winget already on Preview version!" | Tee-Object -FilePath $logfile -Append
+    Catch [Exception] {
+        $_.exception | Out-File -FilePath $logfile -Append
+        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Unable to download winget " | Tee-Object -FilePath $logfile -Append
+        exit
+    }
+    #install the package
+    Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense | Out-File -FilePath $logfile -Append
+    #test to see if installed
+    if(!(Test-WG)) {
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Winget missing after install." | Tee-Object -FilePath $logfile -Append
+    }
+    else {
+    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Winget preview installed !" | Tee-Object -FilePath $logfile -Append
     }
 }
 
