@@ -129,7 +129,7 @@ Function Get-WGList {
         return
     }
 
-    #Remove junk characters
+    #Remove junk characters from results
     $listresult = $listresult -replace 'ΓÇª', ' '
 
     #Split winget output to lines
