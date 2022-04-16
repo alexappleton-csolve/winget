@@ -129,6 +129,9 @@ Function Get-WGList {
         return
     }
 
+    #Remove junk characters
+    $listresult = $listresult -replace 'ΓÇª', ' '
+
     #Split winget output to lines
     $lines = $listResult.Split([Environment]::NewLine).Replace("¦ ","")
 
