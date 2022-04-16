@@ -161,6 +161,7 @@ Function Get-WGList {
             $Application = [Application]::new()
             $Application.Name = $line.Substring(0, $idStart).TrimEnd()
             $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+            $Application.Id = $application.id -replace "ΓÇª", " "
             $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
             $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
             #add formated soft to list
