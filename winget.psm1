@@ -130,7 +130,7 @@ Function Get-WGList {
     }
 
     #Remove junk characters from results
-    #$listresult = $listresult -replace "[ΓÇª]", " "
+    $listresult = $listresult -replace '[^\p{L}\p{Nd}]', ''
 
     #Split winget output to lines
     $lines = $listResult.Split([Environment]::NewLine).Replace("¦ ","")
@@ -161,7 +161,6 @@ Function Get-WGList {
             $Application = [Application]::new()
             $Application.Name = $line.Substring(0, $idStart).TrimEnd()
             $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-            $Application.Id = $application.id -replace "ª ", ""
             $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
             $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
             #add formated soft to list
