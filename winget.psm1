@@ -310,7 +310,8 @@ Function Parse-WingetListOutput {
         #add formated soft to list
         $softwarelist += $Application
     }
- }
+}
+
 
 #following function attempts to upgrade based on the application ID input parameter $appid  
 Function Start-WGUpgrade {
