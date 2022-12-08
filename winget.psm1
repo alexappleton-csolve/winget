@@ -213,7 +213,7 @@ Function Get-WGList2 {
         [string]$AvailableVersion
     }
 
-    Write-Log -Message "Listing installed applications" -Severity 0
+    Write-Log -Message "Listing installed applications"
 
     # Store the results of the `winget list` command in a variable
     $listResult = & $Winget list --accept-source-agreements | Out-String
