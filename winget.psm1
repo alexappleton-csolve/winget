@@ -310,6 +310,7 @@ For ($i = $fl + 2; $i -le $lines.Length; $i++){
         #add formated soft to list
         $softwarelist += $Application
     }
+  }
 }
 
 #following function attempts to upgrade based on the application ID input parameter $appid  
