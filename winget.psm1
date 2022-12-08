@@ -133,6 +133,7 @@ Function Enable-WG {
     }
 }
 
+
 #Following function lists the available applications in winget
 Function Get-WGList {
 	class Application {
@@ -184,6 +185,7 @@ Function Get-WGList {
     }
 
     return $softwarelist
+
 }
 
 #Following function will list installed applications
