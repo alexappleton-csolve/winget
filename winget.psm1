@@ -204,6 +204,17 @@ Function Get-WGList {
 
 }
 
+Function Get-WGList2 {
+    if((Test-WG)){
+        Write-Log -Message "Listing installed applications" -Severity 0
+        $output = & $Winget list --accept-source-agreements | ConvertFrom-String | Select-Object -ExpandProperty applications
+        $output | Format-Table -Property id, name, publisher, version, installed
+    }
+    else{
+        Write-Output "Winget not installed"
+    }
+}
+
 #following function lists only the apps that require updating
 function Get-WGUpgrade {
 	class Software {
