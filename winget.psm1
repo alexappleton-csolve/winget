@@ -206,7 +206,7 @@ Function Get-WGList2 {
 #following function lists only the apps that require updating
 Function Get-WGUpgrade {
     if((Test-WG)){
-        $results = winget upgrade
+        $results = & $Winget upgrade
         $upgradeableApps = Parse-WingetListOutput $results
         return $upgradeableApps
     }
