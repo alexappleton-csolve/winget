@@ -21,7 +21,6 @@
 .NOTES
     Functions:
         Enable-WG: Installs winget
-        Enable-WGPreview: Installs the preview module as identified in the $previewurl variable
         Get-WGList: Displays a list of applications currently installed
         Get-WGUpgrade: Displays a list of outdated apps
         Get-WGVer: Displays current version of winget
@@ -88,38 +87,24 @@ Function Get-WGver {
     }
 }
 
-#Following function will enable winget
+#Following function will enable winget.  Use the preview switch to install preview mode
 Function Enable-WG {
     Write-Log -Message "Installing Winget..."
-    If ((Test-Path -Path $Winget) -eq $false) {
-        Try {
-            Write-Log -Message "Winget not found, downloading from $wgdl"
-            Invoke-WebRequest -Uri $wgdl -OutFile $dl -ErrorAction Stop
-            Write-Log -Message "Winget downloaded to $dl"
-            Start-Process -FilePath $dl -ArgumentList "/quiet", "/norestart" -Wait
-            Write-Log -Message "Winget installed successfully"
-        }
-        Catch {
-            Write-Log -Message "Error installing Winget: $_" -Severity "Error"
+    If ((Test-Path -Path $Winget) -eq $true) {
+        Write-Log -Message "Winget already installed"
+        If ($PSBoundParameters['Preview']) {
+            Write-Log -Message "Winget preview already installed"
         }
     }
     Else {
-        Write-Log -Message "Winget already installed"
-    }
-}
-
-#Following function will enable the preview version of winget
-Function Enable-WGPreview {
-    Write-Log -Message "Installing Winget Preview..."
-    If ((Test-Path -Path $Winget) -eq $true) {
         Try {
-            # Use the GitHub API to get the latest preview release of Winget
+            # Use the GitHub API to get the latest release of Winget
             $release = Invoke-RestMethod -Uri "https://api.github.com/repos/microsoft/winget-cli/releases/latest"
 
-            # Check if the release is a preview release
-            If ($release.prerelease -eq $true) {
-                # Check if the installed version of Winget is older than the latest preview release
-                If ((Get-WGver) -lt $release.tag_name) {
+            # Check if the -Preview switch is specified
+            If ($PSBoundParameters['Preview']) {
+                # Check if the release is a preview release
+                If ($release.prerelease -eq $true) {
                     # Get the download URL for the Winget preview installer
                     $previewUrl = ($release.assets | Where-Object name -eq "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle").browser_download_url
 
@@ -130,19 +115,21 @@ Function Enable-WGPreview {
                     Write-Log -Message "Winget preview installed successfully"
                 }
                 Else {
-                    Write-Log -Message "Winget preview version $($release.tag_name) already installed"
+                    Write-Log -Message "No preview releases of Winget are available"
                 }
             }
             Else {
-                Write-Log -Message "No preview releases of Winget are available"
+                # Download and install the stable release of Winget
+                Write-Log -Message "Downloading winget from $wgdl"
+                Invoke-WebRequest -Uri $wgdl -OutFile $dl -ErrorAction Stop
+                Write-Log -Message "Winget downloaded to $dl"
+                Start-Process -FilePath $dl -ArgumentList "/quiet", "/norestart" -Wait
+                Write-Log -Message "Winget installed successfully"
             }
         }
         Catch {
-            Write-Log -Message "Error installing Winget Preview: $_" -Severity "Error"
+            Write-Log -Message "Error installing Winget: $_" -Severity "Error"
         }
-    }
-    Else {
-        Write-Log -Message "Winget not found, please install using Enable-WG"
     }
 }
 
@@ -332,8 +319,6 @@ Function Start-WGUpgrade {
 
     Write-Log -Message "Finished upgrading application: $appid"
 }
-
-
 
 #Following function will install individual application based on application ID
 Function Start-WGInstall {
