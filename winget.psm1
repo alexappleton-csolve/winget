@@ -193,16 +193,30 @@ Function Get-WGList {
 
 #Following function will list installed applications
 Function Get-WGList2 {
-    If((Test-WG)){
-        & $Winget list --accept-source-agreements | Select-Object @{Name="Name"; Expression={$_ -replace '¦'}},
-                                                                  @{Name="ID"; Expression={$_ -replace '¦'}},
-                                                                  @{Name="Version"; Expression={$_ -replace '¦'}},
-                                                                  @{Name="AvailableVersion"; Expression={$_ -replace '¦'}}
+    # Check if Winget is installed and in the path
+    If ((Test-WG)) {
+        # Use Winget to get a list of installed applications
+        $installedApps = & $Winget list --accept-source-agreements | Select-Object -Skip 2 | ConvertFrom-Csv
+        
+        # For each installed application, get its name, ID, version, and available version
+        foreach ($app in $installedApps) {
+            $name = $app.name
+            $id = $app.id
+            $version = $app.version
+            $availableVersion = & $Winget show $id -f version
+            [PSCustomObject]@{
+                name = $name
+                id = $id
+                version = $version
+                availableVersion = $availableVersion
+            }
+        }
     }
-    Else{
-        Write-Log -Message "Winget not installed, please run Enable-WG"
+    Else {
+        Write-Log -Message "Winget not found, please install using Enable-WG" -Severity "Error"
     }
 }
+
 
 #following function lists only the apps that require updating
 function Get-WGUpgrade {
