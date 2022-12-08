@@ -205,13 +205,24 @@ Function Get-WGList {
 }
 
 Function Get-WGList2 {
+    Write-Log -Message "Listing installed applications" -Severity Info
     if((Test-WG)){
-        Write-Log -Message "Listing installed applications" -Severity 0
-        $output = & $Winget list --accept-source-agreements | ConvertFrom-String | Select-Object -ExpandProperty applications
-        $output | Format-Table -Property id, name, publisher, version, installed
+        # Use the winget command to list installed applications
+        $installedApps = & $Winget list --accept-source-agreements
+        # Use regular expressions to parse the results of the winget command
+        $regex = '(?<=\[)([^\]]+)(?=\])'
+        $installedApps | Select-Object -ExpandProperty applications | ForEach-Object {
+            if ($_.matches($regex)) {
+                # Create an object for each application with the application ID and version number
+                [PSCustomObject]@{
+                    ID = $_.Matches[0].Value
+                    Version = $_.Matches[1].Value
+                }
+            }
+        }
     }
     else{
-        Write-Output "Winget not installed"
+        Write-Output "Winget is not installed"    
     }
 }
 
