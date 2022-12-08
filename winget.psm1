@@ -309,7 +309,7 @@ Function Parse-WingetListOutput {
             $Application = [Application]::new()
             $Application.Name = $line.Substring(0, $idStart).TrimEnd(("[^\P{C}]+$"))
             $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimStart("ª").TrimStart()
-            $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart().TrimStart("ª")
+            $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart().TrimStart("ª").TrimStart()
             $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimStart()
             #add formated soft to list
             $softwarelist += $Application
