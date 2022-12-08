@@ -315,7 +315,6 @@ Function Parse-WingetListOutput {
             $softwarelist += $Application
         }
     }
-
     return $softwarelist
 }
 
