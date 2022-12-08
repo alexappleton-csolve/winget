@@ -298,22 +298,20 @@ Function Parse-WingetListOutput {
     $availableStart = $lines[$fl].IndexOf($index[3])
     $sourceStart = $lines[$fl].IndexOf($index[4])
 
-# Now cycle through the real package and split accordingly
-$softwarelist = @()
-For ($i = $fl + 2; $i -le $lines.Length; $i++){
-    $line = $lines[$i].TrimStart()
-    if ($line.Length -gt ($sourceStart+5) -and -not $line.StartsWith('-')){
-        $Application = [Application]::new()
-        $Application.Name = $line.Substring(0, $idStart).TrimEnd()
-        $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-        $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart()
-        $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimStart()
-        #add formated soft to list
-        $softwarelist += $Application
+    # Now cycle through the real package and split accordingly
+    $softwarelist = @()
+    For ($i = $fl + 2; $i -le $lines.Length; $i++){
+        $line = $lines[$i]
+        if ($line.Length -gt ($sourceStart+5) -and -not $line.StartsWith('-')){
+            $Application = [Application]::new()
+            $Application.Name = $line.Substring(0, $idStart).TrimEnd()
+            $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+            $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart()
+            $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+            #add formated soft to list
+            $softwarelist += $Application
+        }
     }
-}
-
-
 
     return $softwarelist
 }
