@@ -325,50 +325,27 @@ Function Start-WGUpgrade {
 	"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE FINISHED FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append
 }
 
-#following function attemps to install based on application ID. appid parameter is mandatory
+#Following function will install individual application based on application ID
 Function Start-WGInstall {
     Param(
         [Parameter(Mandatory=$true)]
-        [string]$appid,
-        [Parameter()]
-        [string]$scope
+        [string]$appid
     )
-    $failedtoinstall = $false
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   INSTALL START FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append
 
-    if($scope){
-        $results = & $Winget install --id $appid --scope $scope --accept-package-agreements --accept-source-agreements -h
-    }
-    else{
-        $results = & $Winget install --id $appid --accept-package-agreements --accept-source-agreements -h
-    }
-    
-    $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
+    Write-Log -Message "Installing $appid..."
 
-    #Check if application installed properly
-
-    if(Get-WGList | Where-Object id -eq $appid) {
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid installed. " | Tee-Object -FilePath $logfile -Append
-    }
-    else {
-        $msiexec = Get-process msiexec.exe -ErrorAction SilentlyContinue
-        if($msiexec) {
-            "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Waiting for msiexec.exe to finish...' " | Tee-Object -FilePath $logfile -Append 
-            $procid = (get-process msiexec.exe).Id
-            Wait-process -id $procid 
-        }
-        else{
-            start-sleep -Seconds 30
-        }
-        if(Get-WGList | Where-Object id -eq $appid) {
-            "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid installed. " | Tee-Object -FilePath $logfile -Append
+    if((Test-WG)){
+        & $Winget install $appid --accept-source-agreements | Out-Null
+        if((Get-WGList | Where-Object id -eq $appid)) {
+            Write-Log -Message "$appid installed successfully"
         }
         else {
-        $failedtoinstall=$true
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   $appid install not completed or failed.  Please review the logs. " | Tee-Object -FilePath $logfile -Append
+            Write-Log -Message "$appid failed to install"
         }
     }
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   INSTALL FINISHED FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append    
+    else{
+        Write-Log -Message "Winget not found"
+    }
 }
 
 #Following function will uninstall individual application based on application ID
