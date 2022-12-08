@@ -29,6 +29,7 @@
         Start-WGInstall: Installs individual application based on application ID. appid parameter is mandatory
         Start-WGUninstall: Uninstalls individual application based on application ID.  appid parameter is mandatory
         Test-WG: Tests winget path
+        Uninstall-WG: Uninstalls Winget
 
 #>
 #Set TLS protocols.
@@ -415,3 +416,29 @@ Function Start-WGUninstall {
     Write-Log -Message "Finished uninstalling application: $appid"
 }
 
+#Following function will uninstall winget from the system
+Function Uninstall-WG {
+    Write-Log -Message "Uninstalling Winget..."
+
+    # Uninstall Winget
+    $uninstalled = $false
+    try {
+        Get-AppxPackage -Name Microsoft.DesktopAppInstaller | Remove-AppxPackage
+        $uninstalled = $true
+    }
+    catch {
+        Write-Log -Message "Error uninstalling Winget: $_"
+    }
+
+    # Delete the installation files
+    if([System.IO.File]::Exists($dl)){
+        Remove-Item -Path $dl -Force
+    }
+
+    if($uninstalled){
+        Write-Log -Message "Finished uninstalling Winget"
+    }
+    else{
+        Write-Log -Message "Winget is already uninstalled"
+    }
+}
