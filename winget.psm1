@@ -43,6 +43,24 @@ $wgdl = "https://aka.ms/getwinget"
 $previewurl = "https://github.com/microsoft/winget-cli/releases/download/v1.3.431/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
 $previewver = "1.18.2202.12001"
 
+# Define the Write-Log function
+Function Write-Log {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Message,
+
+        [ValidateSet('Info', 'Warning', 'Error')]
+        [string]$Severity = 'Info'
+    )
+
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logMessage = "[$timestamp] [$Severity] $Message"
+
+    Write-Output $logMessage | Out-File -FilePath $logfile -Append
+}
+
 #archive existing logfile
 if ([System.IO.File]::Exists($logfile)) {
     Rename-Item -Path $logfile -NewName "ps_winget$(get-date -f "yyyy-MM-dd HH-mm-ss").log" -ErrorAction SilentlyContinue
@@ -72,24 +90,21 @@ Function Get-WGver {
 
 #Following function will enable winget
 Function Enable-WG {
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Installing Winget..." | Tee-Object -FilePath $logfile -Append
-    #download the package
-    Try{
-        (New-Object System.Net.WebClient).DownloadFile($wgdl, $dl) | out-null
+    Write-Log -Message "Installing Winget..."
+    If ((Test-Path -Path $Winget) -eq $false) {
+        Try {
+            Write-Log -Message "Winget not found, downloading from $wgdl"
+            Invoke-WebRequest -Uri $wgdl -OutFile $dl -ErrorAction Stop
+            Write-Log -Message "Winget downloaded to $dl"
+            Start-Process -FilePath $dl -ArgumentList "/quiet", "/norestart" -Wait
+            Write-Log -Message "Winget installed successfully"
+        }
+        Catch {
+            Write-Log -Message "Error installing Winget: $_" -Severity "Error"
+        }
     }
-    Catch [Exception] {
-        $_.exception | Out-File -FilePath $logfile -Append
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Unable to download winget " | Tee-Object -FilePath $logfile -Append
-        exit
-    }
-    #add the package
-    Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense | Out-File -FilePath $logfile -Append
-    #test to see if installed
-    if(!(Test-WG)) {
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Winget missing after install." | Tee-Object -FilePath $logfile -Append
-    }
-    else {
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Winget installed !" | Tee-Object -FilePath $logfile -Append
+    Else {
+        Write-Log -Message "Winget already installed"
     }
 }
 
