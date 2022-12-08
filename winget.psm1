@@ -204,6 +204,7 @@ Function Get-WGList {
 
 }
 
+#Following function will list installed applications
 Function Get-WGList2 {
     Write-Log -Message "Listing installed applications" -Severity Info
     if((Test-WG)){
@@ -211,13 +212,11 @@ Function Get-WGList2 {
         $installedApps = & $Winget list --accept-source-agreements
         # Use regular expressions to parse the results of the winget command
         $regex = '(?<=\[)([^\]]+)(?=\])'
-        $installedApps | Select-Object -ExpandProperty applications | ForEach-Object {
-            if ($_.matches($regex)) {
-                # Create an object for each application with the application ID and version number
-                [PSCustomObject]@{
-                    ID = $_.Matches[0].Value
-                    Version = $_.Matches[1].Value
-                }
+        $installedApps -match $regex | ForEach-Object {
+            # Create an object for each application with the application ID and version number
+            [PSCustomObject]@{
+                ID = $_.Matches[0].Value
+                Version = $_.Matches[1].Value
             }
         }
     }
@@ -225,6 +224,7 @@ Function Get-WGList2 {
         Write-Output "Winget is not installed"    
     }
 }
+
 
 #following function lists only the apps that require updating
 function Get-WGUpgrade {
