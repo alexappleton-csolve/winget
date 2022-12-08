@@ -308,7 +308,7 @@ Function Parse-WingetListOutput {
         if ($line.Length -gt ($sourceStart+5) -and -not $line.StartsWith('-')){
             $Application = [Application]::new()
             $Application.Name = $line.Substring(0, $idStart).TrimEnd([System.Text.RegularExpressions.Regex]::Escape("[^\x20-\x7E]+$"))
-            $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+            $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimStart([System.Text.RegularExpressions.Regex]::Escape("[^\x20-\x7E]+"))
             $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart()
             $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimStart()
             #add formated soft to list
