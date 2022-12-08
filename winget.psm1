@@ -206,25 +206,36 @@ Function Get-WGList {
 
 #Following function will list installed applications
 Function Get-WGList2 {
-    Write-Log -Message "Listing installed applications" -Severity Info
-    if((Test-WG)){
-        # Use the winget command to list installed applications
-        $installedApps = & $Winget list --accept-source-agreements
-        # Use regular expressions to parse the results of the winget command
-        $regex = '(?<=\[)([^\]]+)(?=\])'
-        $installedApps -match $regex | ForEach-Object {
-            # Create an object for each application with the application ID and version number
-            [PSCustomObject]@{
-                ID = $_.Matches[0].Value
-                Version = $_.Matches[1].Value
-            }
-        }
+    class Application {
+        [string]$Name
+        [string]$Id
+        [string]$Version
+        [string]$AvailableVersion
     }
-    else{
-        Write-Output "Winget is not installed"    
-    }
-}
 
+    Write-Log -Message "Listing installed applications" -Severity 0
+
+    # Store the results of the `winget list` command in a variable
+    $listResult = & $Winget list --accept-source-agreements | Out-String
+
+    # Use a regular expression to match the application data
+    $appDataRegex = '(?<=¦ )(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+'
+    $appData = [regex]::Matches($listResult, $appDataRegex)
+
+    # Iterate over the matches and create Application objects for each
+    $softwareList = @()
+    foreach ($match in $appData) {
+        $Application = [Application]::new()
+        $Application.Name = $match.Groups[1].Value
+        $Application.Id = $match.Groups[2].Value
+        $Application.Version = $match.Groups[3].Value
+        $Application.AvailableVersion = $match.Groups[4].Value
+        # Add the formatted software to the list
+        $softwareList += $Application
+    }
+
+    return $softwareList
+}
 
 #following function lists only the apps that require updating
 function Get-WGUpgrade {
