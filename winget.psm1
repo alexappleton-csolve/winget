@@ -108,27 +108,44 @@ Function Enable-WG {
     }
 }
 
-#Following function enables the preview build of winget
+#Following function will enable the preview version of winget
 Function Enable-WGPreview {
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Installing winget preview version..." | Tee-Object -FilePath $logfile -Append
-    Try{
-        (New-Object System.Net.WebClient).DownloadFile($previewurl, $dl) | out-null
+    Write-Log -Message "Installing Winget Preview..."
+    If ((Test-Path -Path $Winget) -eq $true) {
+        Try {
+            # Use the GitHub API to get the latest preview release of Winget
+            $release = Invoke-RestMethod -Uri "https://api.github.com/repos/microsoft/winget-cli/releases/latest"
+
+            # Check if the release is a preview release
+            If ($release.prerelease -eq $true) {
+                # Check if the installed version of Winget is older than the latest preview release
+                If ((Get-WGver) -lt $release.tag_name) {
+                    # Get the download URL for the Winget preview installer
+                    $previewUrl = ($release.assets | Where-Object name -eq "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle").browser_download_url
+
+                    Write-Log -Message "Winget preview not installed, downloading from $previewUrl"
+                    Invoke-WebRequest -Uri $previewUrl -OutFile $dl -ErrorAction Stop
+                    Write-Log -Message "Winget preview downloaded to $dl"
+                    Start-Process -FilePath $dl -ArgumentList "/quiet", "/norestart" -Wait
+                    Write-Log -Message "Winget preview installed successfully"
+                }
+                Else {
+                    Write-Log -Message "Winget preview version $($release.tag_name) already installed"
+                }
+            }
+            Else {
+                Write-Log -Message "No preview releases of Winget are available"
+            }
+        }
+        Catch {
+            Write-Log -Message "Error installing Winget Preview: $_" -Severity "Error"
+        }
     }
-    Catch [Exception] {
-        $_.exception | Out-File -FilePath $logfile -Append
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Unable to download winget " | Tee-Object -FilePath $logfile -Append
-        exit
-    }
-    #install the package
-    Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense | Out-File -FilePath $logfile -Append
-    #test to see if installed
-    if(!(Test-WG)) {
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Winget missing after install." | Tee-Object -FilePath $logfile -Append
-    }
-    else {
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Winget preview installed !" | Tee-Object -FilePath $logfile -Append
+    Else {
+        Write-Log -Message "Winget not found, please install using Enable-WG"
     }
 }
+
 
 #Following function lists the available applications in winget
 Function Get-WGList {
