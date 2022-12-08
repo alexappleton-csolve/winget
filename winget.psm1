@@ -41,7 +41,6 @@ $logfile = "C:\Windows\Temp\ps_winget.log"
 $dl = "C:\windows\Temp\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
 $wgdl = "https://aka.ms/getwinget"
 
-
 # Define the Write-Log function
 Function Write-Log {
     [CmdletBinding()]
@@ -133,63 +132,8 @@ Function Enable-WG {
     }
 }
 
-
-#Following function lists the available applications in winget
-Function Get-WGList {
-	class Application {
-        [string]$Name
-        [string]$Id
-        [string]$Version
-        [string]$AvailableVersion
-    }
-	
-    $listResult = & $Winget list --accept-source-agreements | out-string
-    if (!($listResult -match "-----")){
-        return
-    }
-
-    #Split winget output to lines
-    $lines = $listResult.Split([Environment]::NewLine).Replace("¦ ","")
-
-    # Find the line that starts with "------"
-    $fl = 0
-    while (-not $lines[$fl].StartsWith("-----")){
-        $fl++
-    }
-    
-    #Get header line
-    $fl = $fl - 2
-
-    #Get header titles
-    $index = $lines[$fl] -split '\s+'
-
-    # Line $i has the header, we can find char where we find ID and Version
-    $idStart = $lines[$fl].IndexOf($index[1])
-    $versionStart = $lines[$fl].IndexOf($index[2])
-    $availableStart = $lines[$fl].IndexOf($index[3])
-    $sourceStart = $lines[$fl].IndexOf($index[4])
-
-    # Now cycle in real package and split accordingly
-    $softwarelist = @()
-    For ($i = $fl + 2; $i -le $lines.Length; $i++){
-        $line = $lines[$i]
-        if ($line.Length -gt ($sourceStart+5) -and -not $line.StartsWith('-')){
-            $Application = [Application]::new()
-            $Application.Name = $line.Substring(0, $idStart).TrimEnd()
-            $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-            $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-            $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
-            #add formated soft to list
-            $softwarelist += $Application
-		}
-    }
-
-    return $softwarelist
-
-}
-
 #Following function will list installed applications
-Function Get-WGList2 {
+Function Get-WGList {
  # Get the output of the "winget list" command as a string
     $listResult = & $Winget list --accept-source-agreements | out-string
 
