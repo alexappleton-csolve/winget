@@ -190,28 +190,14 @@ Function Get-WGList {
 
 #Following function will list installed applications
 Function Get-WGList2 {
-    # Check if Winget is installed and in the path
-    If ((Test-WG)) {
-        # Use Winget to get a list of installed applications
-        $installedApps = & $Winget list --accept-source-agreements | Select-Object -Skip 2 | ConvertFrom-Csv
-        
-        # For each installed application, get its name, ID, version, and available version
-        foreach ($app in $installedApps) {
-            $name = $app.name
-            $id = $app.id
-            $version = $app.version
-            $availableVersion = & $Winget show $id -f version
-            [PSCustomObject]@{
-                name = $name
-                id = $id
-                version = $version
-                availableVersion = $availableVersion
-            }
-        }
-    }
-    Else {
-        Write-Log -Message "Winget not found, please install using Enable-WG" -Severity "Error"
-    }
+ # Get the output of the "winget list" command as a string
+    $listResult = & $Winget list --accept-source-agreements | out-string
+
+    # Parse the output using the Parse-WingetListOutput function
+    $softwareList = Parse-WingetListOutput -ListResult $listResult
+
+    # Return the parsed list of software
+    return $softwareList
 }
 
 
@@ -269,6 +255,66 @@ function Get-WGUpgrade {
     }
 
     return $upgradeList
+}
+
+#following function parses the results of winget
+Function Parse-WingetListOutput {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$ListResult
+    )
+
+    # Define a class for representing an application
+    class Application {
+        [string]$Name
+        [string]$Id
+        [string]$Version
+        [string]$AvailableVersion
+    }
+
+    # Check if the output contains the separator line
+    if (!($listResult -match "-----")){
+        return
+    }
+
+    # Split the output into lines
+    $lines = $listResult.Split([Environment]::NewLine).Replace("¦ ","")
+
+    # Find the line that starts with "------"
+    $fl = 0
+    while (-not $lines[$fl].StartsWith("-----")){
+        $fl++
+    }
+    
+    # Get the header line
+    $fl = $fl - 2
+
+    # Get the header titles
+    $index = $lines[$fl] -split '\s+'
+
+    # Line $i has the header, we can find the characters where we find the ID and Version
+    $idStart = $lines[$fl].IndexOf($index[1])
+    $versionStart = $lines[$fl].IndexOf($index[2])
+    $availableStart = $lines[$fl].IndexOf($index[3])
+    $sourceStart = $lines[$fl].IndexOf($index[4])
+
+    # Now cycle through the real package and split accordingly
+    $softwarelist = @()
+    For ($i = $fl + 2; $i -le $lines.Length; $i++){
+        $line = $lines[$i]
+        if ($line.Length -gt ($sourceStart+5) -and -not $line.StartsWith('-')){
+            $Application = [Application]::new()
+            $Application.Name = $line.Substring(0, $idStart).TrimEnd()
+            $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
+            $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
+            $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+            #add formated soft to list
+            $softwarelist += $Application
+		}
+    }
+
+    return $softwarelist
 }
 
 #following function attempts to upgrade based on the application ID input parameter $appid  
