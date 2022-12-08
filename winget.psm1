@@ -312,8 +312,6 @@ For ($i = $fl + 2; $i -le $lines.Length; $i++){
     }
 }
 
-
-
 #following function attempts to upgrade based on the application ID input parameter $appid  
 Function Start-WGUpgrade {
     [CmdletBinding()]
