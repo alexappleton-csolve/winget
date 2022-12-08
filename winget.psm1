@@ -296,9 +296,9 @@ Function Parse-WingetListOutput {
     $availableStart = $lines[$fl].IndexOf($index[3])
     $sourceStart = $lines[$fl].IndexOf($index[4])
 
-# Now cycle through the real package and split accordingly
-$softwarelist = @()
-For ($i = $fl + 2; $i -le $lines.Length; $i++){
+    # Now cycle through the real package and split accordingly
+    $softwarelist = @()
+    For ($i = $fl + 2; $i -le $lines.Length; $i++){
     $line = $lines[$i].TrimStart()
     if ($line.Length -gt ($sourceStart+5) -and -not $line.StartsWith('-')){
         $Application = [Application]::new()
@@ -310,8 +310,7 @@ For ($i = $fl + 2; $i -le $lines.Length; $i++){
         #add formated soft to list
         $softwarelist += $Application
     }
-  }
-}
+ }
 
 #following function attempts to upgrade based on the application ID input parameter $appid  
 Function Start-WGUpgrade {
