@@ -170,6 +170,8 @@ Function Parse-WingetListOutput {
         [string]$ListResult
     )
 
+    $ListResult = $ListResult | Out-String
+
     # Define a class for representing an application
     class Application {
         [string]$Name
