@@ -307,9 +307,9 @@ Function Parse-WingetListOutput {
         $line = $lines[$i]
         if ($line.Length -gt ($sourceStart+5) -and -not $line.StartsWith('-')){
             $Application = [Application]::new()
-            $Application.Name = $line.Substring(0, $idStart).TrimEnd("ΓÇ")
+            $Application.Name = $line.Substring(0, $idStart).TrimEnd('ΓÇ')
             $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimStart("ª").TrimStart()
-            $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart()
+            $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart("ª").TrimStart()
             $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimStart()
             #add formated soft to list
             $softwarelist += $Application
