@@ -307,7 +307,7 @@ Function Parse-WingetListOutput {
         $line = $lines[$i]
         if ($line.Length -gt ($sourceStart+5) -and -not $line.StartsWith('-')){
             $Application = [Application]::new()
-            $Application.Name = $line.Substring(0, $idStart).TrimEnd([System.Text.RegularExpressions.Regex]::Escape("[^\x20-\x7E]+$")) 
+            $Application.Name = $line.Substring(0, $idStart).TrimEnd([System.Text.RegularExpressions.Regex]::Escape("[^\P{C}]+$"))
             $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimStart("ª")
             $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart()
             $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimStart()
