@@ -305,7 +305,7 @@ For ($i = $fl + 2; $i -le $lines.Length; $i++){
         $Application.Name = $line.Substring(0, $idStart).TrimEnd()
         $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
         $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart()
-        $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+        $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimStart()
         #add formated soft to list
         $softwarelist += $Application
     }
