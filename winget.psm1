@@ -197,7 +197,7 @@ Function Get-WGList2 {
     $softwareList = Parse-WingetListOutput -ListResult $listResult
 
      # Sort the list of software by the Name property
-    $softwareList = $softwareList | Sort-Object -Property Name
+    $softwareList = $softwareList | Sort-Object -Property name
 
     # Return the parsed list of software
     return $softwareList
