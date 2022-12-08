@@ -193,35 +193,15 @@ Function Get-WGList {
 
 #Following function will list installed applications
 Function Get-WGList2 {
-    class Application {
-        [string]$Name
-        [string]$Id
-        [string]$Version
-        [string]$AvailableVersion
+    If((Test-WG)){
+        & $Winget list --accept-source-agreements | Select-Object @{Name="Name"; Expression={$_ -replace '¦'}},
+                                                                  @{Name="ID"; Expression={$_ -replace '¦'}},
+                                                                  @{Name="Version"; Expression={$_ -replace '¦'}},
+                                                                  @{Name="AvailableVersion"; Expression={$_ -replace '¦'}}
     }
-
-    Write-Log -Message "Listing installed applications"
-
-    # Store the results of the `winget list` command in a variable
-    $listResult = & $Winget list --accept-source-agreements | Out-String
-
-    # Use a regular expression to match the application data
-    $appDataRegex = '(?<=¦ )(.*?)\s+(.*?)\s+(.*?)\s+(.*?)\s+'
-    $appData = [regex]::Matches($listResult, $appDataRegex)
-
-    # Iterate over the matches and create Application objects for each
-    $softwareList = @()
-    foreach ($match in $appData) {
-        $Application = [Application]::new()
-        $Application.Name = $match.Groups[1].Value
-        $Application.Id = $match.Groups[2].Value
-        $Application.Version = $match.Groups[3].Value
-        $Application.AvailableVersion = $match.Groups[4].Value
-        # Add the formatted software to the list
-        $softwareList += $Application
+    Else{
+        Write-Log -Message "Winget not installed, please run Enable-WG"
     }
-
-    return $softwareList
 }
 
 #following function lists only the apps that require updating
