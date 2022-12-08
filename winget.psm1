@@ -371,43 +371,25 @@ Function Start-WGInstall {
     "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   INSTALL FINISHED FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append    
 }
 
-#following function attempts to uninstall based on application ID.  appid parameter is mandatory
+#Following function will uninstall individual application based on application ID
 Function Start-WGUninstall {
     Param(
         [Parameter(Mandatory=$true)]
         [string]$appid
     )
-    $failedtouninstall = $false
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UNINSTALL START FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append
 
-        $results = & $Winget uninstall --id $appid --accept-source-agreements --silent
-    
-    $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
+    Write-Log -Message "Uninstalling $appid..."
 
-    #Check if application uninstalled properly
-    
-   
-    if(!(Get-WGList | Where-Object id -eq $appid)) {
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid uninstalled. " | Tee-Object -FilePath $logfile -Append
-    }
-    else {
-        $msiexec = Get-process msiexec.exe -ErrorAction SilentlyContinue
-        if($msiexec) {
-            "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Waiting for msiexec.exe to finish...' " | Tee-Object -FilePath $logfile -Append 
-            $procid = (get-process msiexec.exe).Id
-            Wait-process -id $procid 
-        }
-        else{
-            #just doing a bit of a sleep to wait for the uninstall to finish
-            start-sleep -Seconds 30
-        }
-        if(!(Get-WGList | Where-Object id -eq $appid)) {
-            "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   $appid uninstalled. " | Tee-Object -FilePath $logfile -Append
+    if((Test-WG)){
+        & $Winget uninstall $appid | Out-Null
+        if((Get-WGList | Where-Object id -eq $appid)) {
+            Write-Log -Message "$appid failed to uninstall"
         }
         else {
-        $failedtouninstall=$true
-        "$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   $appid uninstall possibly failed.  Please check the logs. " | Tee-Object -FilePath $logfile -Append
+            Write-Log -Message "$appid uninstalled successfully"
         }
     }
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UNINSTALL FINISHED FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append    
+    else{
+        Write-Log -Message "Winget not found"
+    }
 }
