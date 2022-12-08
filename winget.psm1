@@ -40,8 +40,7 @@ $Winget = Get-ChildItem "C:\Program Files\WindowsApps" -Recurse -File | Where-Ob
 $logfile = "C:\Windows\Temp\ps_winget.log"
 $dl = "C:\windows\Temp\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
 $wgdl = "https://aka.ms/getwinget"
-$previewurl = "https://github.com/microsoft/winget-cli/releases/download/v1.3.431/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
-$previewver = "1.18.2202.12001"
+
 
 # Define the Write-Log function
 Function Write-Log {
@@ -295,78 +294,124 @@ function Get-WGUpgrade {
 
 #following function attempts to upgrade based on the application ID input parameter $appid  
 Function Start-WGUpgrade {
-    Param(
-        [Parameter(Mandatory=$true)]
-        [string]$appid
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, Position=1)]
+        [String]
+        $appid
     )
-    
-    $FailedToUpgrade = $false
-    $appversion = (Get-WGList | Where-Object Id -EQ $appid).Version
-    $availversion = (Get-WGList | Where-Object Id -EQ $appid).AvailableVersion
 
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE START FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append
-    "$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Upgrading from $appversion to $availversion..." | Tee-Object -FilePath $logfile -Append
-    
-    #Run winget
-    $results = & $Winget upgrade --id $appId --all --accept-package-agreements --accept-source-agreements -h 
-    $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
+    Write-Log -Message "Starting upgrade for application: $appid"
 
-        #Check if application updated properly
+    if((Test-WG)){
+        $app = & $Winget search -u $appid
+        if($app){
+            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
+            Write-Log -Message "Upgrading application: $appname"
+            & $Winget install -e --accept-source-agreements $appid
+        }
+        else{
+            Write-Log -Message "Application not found: $appid"
+        }
+    }
+    else{
+        Write-Log -Message "Winget not found. Installing Winget..."
+        Enable-WG
+        Write-Log -Message "Winget installed. Starting upgrade for application: $appid"
+        $app = & $Winget search -u $appid
+        if($app){
+            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
+            Write-Log -Message "Upgrading application: $appname"
+            & $Winget install -e --accept-source-agreements $appid
+        }
+        else{
+            Write-Log -Message "Application not found: $appid"
+        }
+    }
 
-        if(Get-WGUpgrade| Where-Object id -eq $appid) {
-      			$FailedToUpgrade = $true
-				"$(get-date -f "yyyy-MM-dd HH-mm-ss") [ERR]   Update failed. Please review the log file. " | Tee-Object -FilePath $logfile -Append
-				$InstallBAD += 1
-            }
-			else {
-			"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   Update completed !" | Tee-Object -FilePath $logfile -Append
-			$InstallOK += 1
-			}
-	"$(get-date -f "yyyy-MM-dd HH-mm-ss") [LOG]   UPGRADE FINISHED FOR APPLICATION ID: '$appid' " | Tee-Object -FilePath $logfile -Append
+    Write-Log -Message "Finished upgrading application: $appid"
 }
+
+
 
 #Following function will install individual application based on application ID
 Function Start-WGInstall {
-    Param(
-        [Parameter(Mandatory=$true)]
-        [string]$appid
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, Position=1)]
+        [String]
+        $appid
     )
 
-    Write-Log -Message "Installing $appid..."
+    Write-Log -Message "Starting installation for application: $appid"
 
     if((Test-WG)){
-        & $Winget install $appid --accept-source-agreements | Out-Null
-        if((Get-WGList | Where-Object id -eq $appid)) {
-            Write-Log -Message "$appid installed successfully"
+        $app = & $Winget search -u $appid
+        if($app){
+            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
+            Write-Log -Message "Installing application: $appname"
+            & $Winget install -e --accept-source-agreements $appid
         }
-        else {
-            Write-Log -Message "$appid failed to install"
+        else{
+            Write-Log -Message "Application not found: $appid"
         }
     }
     else{
-        Write-Log -Message "Winget not found"
+        Write-Log -Message "Winget not found. Installing Winget..."
+        Enable-WG
+        Write-Log -Message "Winget installed. Starting installation for application: $appid"
+        $app = & $Winget search -u $appid
+        if($app){
+            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
+            Write-Log -Message "Installing application: $appname"
+            & $Winget install -e --accept-source-agreements $appid
+        }
+        else{
+            Write-Log -Message "Application not found: $appid"
+        }
     }
+
+    Write-Log -Message "Finished installing application: $appid"
 }
+
 
 #Following function will uninstall individual application based on application ID
 Function Start-WGUninstall {
-    Param(
-        [Parameter(Mandatory=$true)]
-        [string]$appid
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, Position=1)]
+        [String]
+        $appid
     )
 
-    Write-Log -Message "Uninstalling $appid..."
+    Write-Log -Message "Starting uninstallation for application: $appid"
 
     if((Test-WG)){
-        & $Winget uninstall $appid | Out-Null
-        if((Get-WGList | Where-Object id -eq $appid)) {
-            Write-Log -Message "$appid failed to uninstall"
+        $app = & $Winget search -u $appid
+        if($app){
+            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
+            Write-Log -Message "Uninstalling application: $appname"
+            & $Winget uninstall -e --accept-source-agreements $appid
         }
-        else {
-            Write-Log -Message "$appid uninstalled successfully"
+        else{
+            Write-Log -Message "Application not found: $appid"
         }
     }
     else{
-        Write-Log -Message "Winget not found"
+        Write-Log -Message "Winget not found. Installing Winget..."
+        Enable-WG
+        Write-Log -Message "Winget installed. Starting uninstallation for application: $appid"
+        $app = & $Winget search -u $appid
+        if($app){
+            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
+            Write-Log -Message "Uninstalling application: $appname"
+            & $Winget uninstall -e --accept-source-agreements $appid
+        }
+        else{
+            Write-Log -Message "Application not found: $appid"
+        }
     }
+
+    Write-Log -Message "Finished uninstalling application: $appid"
 }
+
