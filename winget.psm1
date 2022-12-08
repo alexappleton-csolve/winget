@@ -29,6 +29,8 @@
         Start-WGUninstall: Uninstalls individual application based on application ID.  appid parameter is mandatory
         Test-WG: Tests winget path
         Uninstall-WG: Uninstalls Winget
+        More functions to come!
+
 
 #>
 #Set TLS protocols.
