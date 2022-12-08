@@ -20,7 +20,7 @@
 
 .NOTES
     Functions:
-        Enable-WG: Installs winget
+        Enable-WG: Installs winget, use -preview switch to install preview mode
         Get-WGList: Displays a list of applications currently installed
         Get-WGUpgrade: Displays a list of outdated apps
         Get-WGVer: Displays current version of winget
@@ -307,7 +307,7 @@ Function Parse-WingetListOutput {
         $line = $lines[$i]
         if ($line.Length -gt ($sourceStart+5) -and -not $line.StartsWith('-')){
             $Application = [Application]::new()
-            $Application.Name = $line.Substring(0, $idStart).TrimEnd([System.Text.RegularExpressions.Regex]::Escape("[^\x20-\x7E]+"))
+            $Application.Name = $line.Substring(0, $idStart).TrimEnd([System.Text.RegularExpressions.Regex]::Escape("[^\x20-\x7E]+$"))
             $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
             $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart()
             $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimStart()
