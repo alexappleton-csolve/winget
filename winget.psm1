@@ -136,8 +136,19 @@ Function Enable-WG {
 
 #Following function will list installed applications
 Function Get-WGList {
- # Get the output of the "winget list" command as a string
-    $listResult = & $Winget list --accept-source-agreements | out-string
+  [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$false)]
+        [string]$appid
+    )
+
+    # Get the output of the "winget list" command as a string
+    if ($appid) {
+        $listResult = & $Winget list --id $appid | out-string
+    }
+    else {
+        $listResult = & $Winget list --accept-source-agreements | out-string
+    }
 
     # Parse the output using the Parse-WingetListOutput function
     $softwareList = Parse-WingetListOutput -ListResult $listResult
