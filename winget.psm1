@@ -192,11 +192,11 @@ function Get-WGUpgrade {
     For ($i = $fl + 2; $i -le $lines.Length; $i++){
         $line = $lines[$i]
         if ($line.Length -gt ($sourceStart+5) -and -not $line.StartsWith('-')){
-            $software = [Software]::new()
-            $software.Name = $line.Substring(0, $idStart).TrimEnd()
-            $software.Id = $line.Substring($idStart, $versionStart - $idStart).TrimEnd()
-            $software.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimEnd()
-            $software.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimEnd()
+            $Application = [Application]::new()
+            $Application.Name = $line.Substring(0, $idStart).TrimEnd(("[^\P{C}]+$"))
+            $Application.Id = $line.Substring($idStart, $versionStart - $idStart).TrimStart("ª").TrimStart()
+            $Application.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart().TrimStart('<').TrimStart("ª").TrimStart()
+            $Application.AvailableVersion = $line.Substring($availableStart, $sourceStart - $availableStart).TrimStart()
             #add formated soft to list
             $upgradeList += $software
         }
