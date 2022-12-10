@@ -290,7 +290,7 @@ Function Start-WGUpgrade {
     )
     $FailedToUpgrade = $false
 
-    if ($All) {
+    if ($All -or !$appid) {
         # Get a list of appids that need to be updated
         $appids = Get-WGUpgrade
 
