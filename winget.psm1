@@ -281,34 +281,35 @@ Function Parse-WingetListOutput {
 
 #following function attempts to upgrade based on the application ID input parameter $appid  
 Function Start-WGUpgrade {
-    [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]
         [string]$appid
     )
+    
+    $FailedToUpgrade = $false
+    $appversion = (Get-WGList | Where-Object Id -EQ $appid).Version
+    $availversion = (Get-WGList | Where-Object Id -EQ $appid).AvailableVersion
 
-    #Check if winget is installed
-    if (!(Test-WG)) {
-        Write-Log -Message "Winget is not installed." -Severity "Error"
-        return $false
-    }
+    Write-Log -Message "UPGRADE START FOR APPLICATION ID: '$appid'" -Severity "Info"
+    Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"
+    
+    #Run winget
+    $results = & $Winget upgrade --id $appId --all --accept-package-agreements --accept-source-agreements -h 
+    $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
 
-    #Upgrade the specified application
-    Invoke-Expression -Command "$Winget upgrade $appid"
+        #Check if application updated properly
 
-    #Check if the application was updated
-    $outdatedApps = Get-WGUpgrade | Where-Object id -eq $appid
-    if ($outdatedApps) {
-        Write-Log -Message "The following updates were installed: $($outdatedApps.name)" -Severity "Info"
-        $true
-    }
-    else {
-        Write-Log -Message "There were no updates available to install for the specified application." -Severity "Info"
-        $false
-    }
+        if(Get-WGUpgrade| Where-Object id -eq $appid) {
+      			$FailedToUpgrade = $true
+				Write-Log -Message "Update failed. Please review the log file." -Severity "Error"
+                $InstallBAD += 1
+                }
+        else {
+                Write-Log -Message "Update completed !" -Severity "Info"
+                $InstallOK += 1
+            }
+    Write-Log -Message "UPGRADE FINISHED FOR APPLICATION ID: '$appid'" -Severity "Info"
 }
-
 
 #Following function will install individual application based on application ID
 Function Start-WGInstall {
