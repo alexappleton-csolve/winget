@@ -71,12 +71,11 @@ if ([System.IO.File]::Exists($logfile)) {
 
 #Following function tests winget path
 Function Test-WG {
-    Try{
-        Test-Path -Path $winget | Out-Null
-        & $Winget list --accept-source-agreements | Out-Null
+    if (Test-Path -Path $winget) {
+        Invoke-Expression -Command "$Winget list --accept-source-agreements"
         $true
     }
-    Catch{
+    else {
         $false
     }
 }
