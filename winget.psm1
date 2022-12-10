@@ -281,7 +281,6 @@ Function Parse-WingetListOutput {
 
 #following function attempts to upgrade based on the application ID input parameter $appid  
 Function Start-WGUpgrade {
-    Function Start-WGUpgrade {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]
