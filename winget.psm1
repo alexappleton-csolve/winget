@@ -432,11 +432,17 @@ Function Upgrade-Application {
 
     #Run winget upgrade
     $results = & $Winget upgrade --id $appid --all --accept-package-agreements --accept-source-agreements -h 
+
+    # Normalize the output to convert the whitespace characters to regular space characters
+    $normalizedResults = $results.Normalize()
+
+    # Replace the Unicode characters with regular ASCII characters
+    $filteredResults = $normalizedResults.Replace("ΓûÆ", "-").Replace("Γûê", "=")
     
-# Filter the output to select only the lines that match certain criteria
-    $filteredResults = $results | Where-Object {
+    # Filter the output to select only the lines that match certain criteria
+    $filteredResults = $normalizedResults | Where-Object {
         # Use a regular expression to match lines that contain words with basic Latin characters - still needs work
-        $_ -match '\b[A-Za-z]+\b'
+         $_ -match '[A-Za-z].*[A-Za-z]'
     }
 
     # Output the filtered results to the log file
