@@ -284,45 +284,55 @@ Function Start-WGUpgrade {
     [CmdletBinding()]
     Param(
         [Parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]
-        [string]$AppID,
-
+        [string]$appid,
+        [Parameter(Mandatory=$false)]
         [switch]$All
     )
+    $FailedToUpgrade = $false
 
-    If ($All) {
-        # Get a list of all app IDs that need to be updated
-        $AppIDs = Get-WGUpgrade | Select-Object -ExpandProperty AppID
+    if ($All) {
+        # Get a list of appids that need to be updated
+        $appids = Get-WGUpgrade
 
-        # Loop through the list of app IDs and upgrade each app
-        Foreach ($ID in $AppIDs) {
-            # Upgrade the app using the winget command
-            Invoke-Expression -Command "$Winget install $ID --accept-source-agreements"
+        # Loop through each appid and call Start-WGUpgrade for each appid
+        foreach ($appid in $appids) {
+            Invoke-Expression -Command "$Winget upgrade $appid --accept-source-agreements"
 
-            # Check the exit code of the winget command
-            If ($LASTEXITCODE -eq 0) {
-                # The app upgrade was successful, write a log entry
-                Write-Log -Message "Upgraded app with ID $ID successfully" -Severity "Info"
+            # Get a list of installed apps and their versions
+            $installedApps = Get-WGList
+
+            # Check if the app was successfully upgraded
+            if ($installedApps | Where-Object {$_.appid -eq $appid} | Where-Object {$_.version -gt $appid.version}) {
+                Write-Log -Message "Successfully upgraded app with appid: $appid" -Severity "Info"
             }
-            Else {
-                # The app upgrade was not successful, write a log entry
-                Write-Log -Message "Failed to upgrade app with ID $ID" -Severity "Error"
+            else {
+                Write-Log -Message "Failed to upgrade app with appid: $appid" -Severity "Error"
             }
         }
     }
-    Else {
-        # Upgrade the specified app using the winget command
-        Invoke-Expression -Command "$Winget install $AppID --accept-source-agreements"
+    else {
+        
+        $appversion = (Get-WGList | Where-Object Id -match $appid).Version
+        $availversion = (Get-WGList | Where-Object Id -match $appid).AvailableVersion
 
-        # Check the exit code of the winget command
-        If ($LASTEXITCODE -eq 0) {
-            # The app upgrade was successful, write a log entry
-            Write-Log -Message "Upgraded app with ID $AppID successfully" -Severity "Info"
-        }
-        Else {
-            # The app upgrade was not successful, write a log entry
-            Write-Log -Message "Failed to upgrade app with ID $AppID" -Severity "Error"
-        }
+        Write-Log -Message "UPGRADE START FOR APPLICATION ID: '$appid'" -Severity "Info"
+        Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"
+
+        #Run winget upgrade
+        $results = & $Winget upgrade --id $appId --all --accept-package-agreements --accept-source-agreements -h 
+        $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
+
+            #Check if application updated properly
+            if(Get-WGUpgrade| Where-Object id -eq $appid) {
+                $FailedToUpgrade = $true
+                Write-Log -Message "Update failed. Please review the log file." -Severity "Error"
+                $InstallBAD += 1
+                }
+            else {
+                    Write-Log -Message "Update completed !" -Severity "Info"
+                    $InstallOK += 1
+                }
+        Write-Log -Message "UPGRADE FINISHED FOR APPLICATION ID: '$appid'" -Severity "Info"
     }
 }
 
