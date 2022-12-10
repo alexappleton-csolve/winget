@@ -287,9 +287,8 @@ Function Start-WGUpgrade {
     )
     
     $FailedToUpgrade = $false
-    $appversion = (Get-WGList | Where-Object Id -EQ $appid -First 1).Version
-    $availversion = (Get-WGList | Where-Object Id -EQ $appid -First 1).AvailableVersion
-
+    $appversion = (Get-WGList | Where-Object Id -match $appid).Version
+    $availversion = (Get-WGList | Where-Object Id -match $appid).AvailableVersion
 
     Write-Log -Message "UPGRADE START FOR APPLICATION ID: '$appid'" -Severity "Info"
     Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"
