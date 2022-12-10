@@ -1,6 +1,9 @@
 <#
 .SYNOPSIS
-    This is a PowerShell module for winget package manager
+    This is a PowerShell module for the winget package manager. 
+    The module provides functions for installing, upgrading, and uninstalling applications using the winget command line interface. 
+    The module also includes functions for testing the winget installation, displaying installed applications and available updates, and more.
+
 
 .DESCRIPTION
     Thank you https://github.com/Romanitho/Winget-AutoUpdate/tree/main/Winget-AutoUpdate
