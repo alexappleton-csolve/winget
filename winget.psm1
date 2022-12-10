@@ -442,8 +442,7 @@ Function Upgrade-Application {
          $_ -match '[A-Za-z].*[A-Za-z]'
     }
 
-    # Replace any Unicode characters in the output with an empty string
-    $filteredResults = $filteredResults -replace '\P{IsBasicLatin}', ''
+   $filteredResults = [regex]::Replace($filteredResults, "[^\p{IsBasicLatin}]", "")
 
     # Output the filtered results to the log file
     $filteredResults | Out-File -Append -FilePath $logfile
