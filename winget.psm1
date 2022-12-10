@@ -292,7 +292,7 @@ Function Start-WGUpgrade {
 
     if ($All -or !$appid) {
         # Get a list of appids that need to be updated
-        $appids = Get-WGUpgrade
+        $appids = (Get-WGUpgrade).Id
 
         # Loop through each appid and call Upgrade-Application for each appid
         foreach ($id in $appids) {
