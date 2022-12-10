@@ -203,7 +203,7 @@ function Get-WGUpgrade {
     For ($i = $fl + 2; $i -le $lines.Length; $i++){
         $line = $lines[$i]
         if ($line.Length -gt ($sourceStart+5) -and -not $line.StartsWith('-')){
-            $software = [Application]::new()
+            $software = [Software]::new()
             $software.Name = $line.Substring(0, $idStart).TrimEnd(("[^\P{C}]+$"))
             $software.Id = $line.Substring($idStart, $versionStart - $idStart).TrimStart("ª").TrimStart()
             $software.Version = $line.Substring($versionStart, $availableStart - $versionStart).TrimStart().TrimStart('<').TrimStart("ª").TrimStart()
