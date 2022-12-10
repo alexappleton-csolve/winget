@@ -296,7 +296,7 @@ Function Start-WGUpgrade {
 
         # Loop through each appid and call Upgrade-Application for each appid
         foreach ($id in $appids) {
-            Upgrade-Application -appid $appid
+            Upgrade-Application -appid $id
             continue
         }
     }
