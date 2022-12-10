@@ -435,15 +435,15 @@ Function Upgrade-Application {
 
     # Normalize the output to convert the whitespace characters to regular space characters
     $normalizedResults = $results.Normalize()
-
-    # Replace the Unicode characters with regular ASCII characters
-    $filteredResults = $normalizedResults.Replace("ΓûÆ", "-").Replace("Γûê", "=")
     
     # Filter the output to select only the lines that match certain criteria
     $filteredResults = $normalizedResults | Where-Object {
         # Use a regular expression to match lines that contain words with basic Latin characters - still needs work
          $_ -match '[A-Za-z].*[A-Za-z]'
     }
+
+    # Replace any Unicode characters in the output with an empty string
+    $filteredResults = $filteredResults -replace '\P{IsBasicLatin}', ''
 
     # Output the filtered results to the log file
     $filteredResults | Out-File -Append -FilePath $logfile
