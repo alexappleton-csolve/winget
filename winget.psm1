@@ -427,13 +427,12 @@ Function Upgrade-Application {
     Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"
 
     #Run winget upgrade
-    $results = & $Winget upgrade --id $appId --all --accept-package-agreements --accept-source-agreements -h 
+    $results = & $Winget upgrade --id $appid --all --accept-package-agreements --accept-source-agreements -h 
     
-    # Remove whitespace from results
-    $results = $results | ForEach-Object { $_.Trim() }
-
-    # Filter out unwanted output
-    $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
+    # Remove whitespace from $results and filter out unwanted output
+    $results = $results -replace '\s+', '' | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"}
+    # Output the filtered results to the log file
+    $results | Out-File -Append -FilePath $logfile
 
     #Check if application updated properly
     if(Get-WGUpgrade| Where-Object id -eq $appid) {
@@ -447,3 +446,4 @@ Function Upgrade-Application {
         }
     Write-Log -Message "UPGRADE FINISHED FOR APPLICATION ID: '$appid'" -Severity "Info"
 }
+
