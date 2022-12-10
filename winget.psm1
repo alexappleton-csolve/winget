@@ -296,7 +296,9 @@ Function Start-WGUpgrade {
 
         # Loop through each appid and call Start-WGUpgrade for each appid
         foreach ($appid in $appids) {
-            Invoke-Expression -Command "$Winget upgrade $appid --accept-source-agreements"
+            #Run winget upgrade
+            $results = & $Winget upgrade --id $appId --all --accept-package-agreements --accept-source-agreements -h 
+            $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
 
             # Get a list of installed apps and their versions
             $installedApps = Get-WGList
