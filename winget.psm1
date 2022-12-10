@@ -32,6 +32,7 @@
         Start-WGUninstall: Uninstalls individual application based on application ID.  appid parameter is mandatory
         Test-WG: Tests winget path
         Uninstall-WG: Uninstalls Winget
+        Upgrade-Application: Runs the actual process of upgrading and parsing the results of the upgrade
         More functions to come!
 
 
