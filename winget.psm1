@@ -419,8 +419,10 @@ Function Upgrade-Application {
     #future use
     $FailedToUpgrade = $false
         
-    $appversion = (Get-WGList | Where-Object Id -match $appid).Version
-    $availversion = (Get-WGList | Where-Object Id -match $appid).AvailableVersion
+    # Get the app version and available version from the Get-WGList function
+    $appInfo = Get-WGList | Where-Object Id -match $appid
+    $appversion = $appInfo.Version
+    $availversion = $appInfo.AvailableVersion
 
     Write-Log -Message "UPGRADE START FOR APPLICATION ID: '$appid'" -Severity "Info"
     Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"
