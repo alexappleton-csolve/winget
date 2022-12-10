@@ -430,7 +430,7 @@ Function Upgrade-Application {
     #Run winget upgrade
     $results = & $Winget upgrade --id $appid --all --accept-package-agreements --accept-source-agreements -h 
     
-    $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | | Where-Object {$_ -match "\p{IsBasicLatin}"}
+    $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Where-Object {$_ -match "\p{IsBasicLatin}"}
     # Output the filtered results to the log file
     $results | Out-File -Append -FilePath $logfile
 
