@@ -359,7 +359,6 @@ Function Start-WGInstall {
     Write-Log -Message "Finished installing application: $appid"
 }
 
-
 #Following function will uninstall individual application based on application ID
 Function Start-WGUninstall {
     [CmdletBinding()]
@@ -402,27 +401,26 @@ Function Start-WGUninstall {
 
 #Following function will uninstall winget from the system
 Function Uninstall-WG {
-    Write-Log -Message "Uninstalling Winget..."
+    #Find the winget executable
+    $winget = Get-Command winget -ErrorAction SilentlyContinue
 
-    # Uninstall Winget
-    $uninstalled = $false
-    try {
-        Get-AppxPackage -Name Microsoft.DesktopAppInstaller | Remove-AppxPackage
-        $uninstalled = $true
-    }
-    catch {
-        Write-Log -Message "Error uninstalling Winget: $_"
-    }
+    if ($winget) {
+        #Uninstall winget
+        Invoke-Expression -Command "$Winget uninstall --accept-source-agreements"
 
-    # Delete the installation files
-    if([System.IO.File]::Exists($dl)){
-        Remove-Item -Path $dl -Force
+        #Check if winget was uninstalled successfully
+        if (!(Test-Path -Path $winget.Path)) {
+            Write-Log -Message "Winget was uninstalled successfully." -Severity "Info"
+            $true
+        }
+        else {
+            Write-Log -Message "Winget could not be uninstalled." -Severity "Error"
+            $false
+        }
     }
-
-    if($uninstalled){
-        Write-Log -Message "Finished uninstalling Winget"
-    }
-    else{
-        Write-Log -Message "Winget is already uninstalled"
+    else {
+        Write-Log -Message "Winget is not installed." -Severity "Error"
+        $false
     }
 }
+
