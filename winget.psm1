@@ -428,7 +428,11 @@ Function Upgrade-Application {
 
     #Run winget upgrade
     $results = & $Winget upgrade --id $appId --all --accept-package-agreements --accept-source-agreements -h 
-    #I need to remove the whitespace in the results
+    
+    # Remove whitespace from results
+    $results = $results | ForEach-Object { $_.Trim() }
+
+    # Filter out unwanted output
     $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
 
     #Check if application updated properly
