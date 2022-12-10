@@ -288,53 +288,19 @@ Function Start-WGUpgrade {
         [Parameter(Mandatory=$false)]
         [switch]$All
     )
-    $FailedToUpgrade = $false
 
     if ($All -or !$appid) {
         # Get a list of appids that need to be updated
         $appids = Get-WGUpgrade
 
-        # Loop through each appid and call Start-WGUpgrade for each appid
+        # Loop through each appid and call Upgrade-Application for each appid
         foreach ($appid in $appids) {
-            #Run winget upgrade
-            $results = & $Winget upgrade --id $appId --all --accept-package-agreements --accept-source-agreements -h 
-            $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
-
-            # Get a list of installed apps and their versions
-            $installedApps = Get-WGList
-
-            # Check if the app was successfully upgraded
-            if ($installedApps | Where-Object {$_.appid -eq $appid} | Where-Object {$_.version -gt $appid.version}) {
-                Write-Log -Message "Successfully upgraded app with appid: $appid" -Severity "Info"
-            }
-            else {
-                Write-Log -Message "Failed to upgrade app with appid: $appid" -Severity "Error"
-            }
+            Upgrade-Application -appid $appid
+            continue
         }
     }
     else {
-        
-        $appversion = (Get-WGList | Where-Object Id -match $appid).Version
-        $availversion = (Get-WGList | Where-Object Id -match $appid).AvailableVersion
-
-        Write-Log -Message "UPGRADE START FOR APPLICATION ID: '$appid'" -Severity "Info"
-        Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"
-
-        #Run winget upgrade
-        $results = & $Winget upgrade --id $appId --all --accept-package-agreements --accept-source-agreements -h 
-        $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
-
-            #Check if application updated properly
-            if(Get-WGUpgrade| Where-Object id -eq $appid) {
-                $FailedToUpgrade = $true
-                Write-Log -Message "Update failed. Please review the log file." -Severity "Error"
-                $InstallBAD += 1
-                }
-            else {
-                    Write-Log -Message "Update completed !" -Severity "Info"
-                    $InstallOK += 1
-                }
-        Write-Log -Message "UPGRADE FINISHED FOR APPLICATION ID: '$appid'" -Severity "Info"
+        Upgrade-Application -appid $appid
     }
 }
 
@@ -443,3 +409,37 @@ Function Uninstall-WG {
     }
 }
 
+#Following function performs the winget upgrade procedure and captures the results
+Function Upgrade-Application {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        [string]$appid
+    )
+    #future use
+    $FailedToUpgrade = $false
+        
+    $appversion = (Get-WGList | Where-Object Id -match $appid).Version
+    $availversion = (Get-WGList | Where-Object Id -match $appid).AvailableVersion
+
+    #this is not working
+    Write-Log -Message "UPGRADE START FOR APPLICATION ID: '$appid'" -Severity "Info"
+    Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"
+
+    #Run winget upgrade
+    $results = & $Winget upgrade --id $appId --all --accept-package-agreements --accept-source-agreements -h 
+    #I need to remove the whitespace in the results
+    $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
+
+    #Check if application updated properly
+    if(Get-WGUpgrade| Where-Object id -eq $appid) {
+        $FailedToUpgrade = $true
+        Write-Log -Message "Update failed. Please review the log file." -Severity "Error"
+        $InstallBAD += 1
+        }
+    else {
+            Write-Log -Message "Update completed !" -Severity "Info"
+            $InstallOK += 1
+        }
+    Write-Log -Message "UPGRADE FINISHED FOR APPLICATION ID: '$appid'" -Severity "Info"
+}
