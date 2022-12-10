@@ -283,7 +283,7 @@ Function Parse-WingetListOutput {
 Function Start-WGUpgrade {
     [CmdletBinding()]
     Param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$false)]
         [string]$appid,
         [Parameter(Mandatory=$false)]
         [switch]$All
