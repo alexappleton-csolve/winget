@@ -435,15 +435,14 @@ Function Upgrade-Application {
     
 # Filter the output to select only the lines that match certain criteria
     $filteredResults = $results | Where-Object {
-        # Use a regular expression to match lines that contain words with basic Latin characters
-        # and no whitespace at the beginning or end of the line
-        $_ -match '^[A-Za-z]+$'
+        # Use a regular expression to match lines that contain words with basic Latin characters - still needs work
+        $_ -match '\b[A-Za-z]+\b'
     }
 
     # Output the filtered results to the log file
     $filteredResults | Out-File -Append -FilePath $logfile
 
-    #Check if application updated properly
+    #Check if application updated properly - this doesn't seem to be working correctly yet.  '
     if(Get-WGUpgrade| Where-Object id -eq $appid) {
         $FailedToUpgrade = $true
         Write-Log -Message "Update failed. Please review the log file." -Severity "Error"
