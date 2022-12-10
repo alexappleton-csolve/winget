@@ -81,7 +81,7 @@ Function Test-WG {
     }
 }
 
-#Following function returns winget version
+#Following function returns winget version - need to bug squash here with invoke-expression
 Function Get-WGver {
     if((Test-WG)){
         [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
@@ -219,7 +219,7 @@ function Get-WGUpgrade {
     return $upgradeList
 }
 
-#following function parses the results of winget
+#following function parses the results of winget - need to rename the verb to comply with standards
 Function Parse-WingetListOutput {
     [CmdletBinding()]
     param (
@@ -293,7 +293,7 @@ Function Start-WGUpgrade {
     if ($All -or !$appid) {
         # Get a list of appids that need to be updated
         $appids = (Get-WGUpgrade).Id
-
+        #need to trim trailing whitespace from ids so they dont send as part of id
         # Loop through each appid and call Upgrade-Application for each appid
         foreach ($id in $appids) {
             Upgrade-Application -appid $id
@@ -426,6 +426,9 @@ Function Upgrade-Application {
 
     Write-Log -Message "UPGRADE START FOR APPLICATION ID: '$appid'" -Severity "Info"
     Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"
+
+     # Remove the trailing white space from the app ID
+    $appID = $appid.TrimEnd()
 
     #Run winget upgrade
     $results = & $Winget upgrade --id $appid --all --accept-package-agreements --accept-source-agreements -h 
