@@ -321,42 +321,41 @@ Function Start-WGUpgrade {
 
 #Following function will install individual application based on application ID
 Function Start-WGInstall {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true, Position=1)]
-        [String]
-        $appid
+    [cmdletbinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$appid
     )
 
-    Write-Log -Message "Starting installation for application: $appid"
-
-    if((Test-WG)){
-        $app = & $Winget search -u $appid
-        if($app){
-            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
-            Write-Log -Message "Installing application: $appname"
-            & $Winget install -e --accept-source-agreements $appid
-        }
-        else{
-            Write-Log -Message "Application not found: $appid"
-        }
-    }
-    else{
-        Write-Log -Message "Winget not found. Installing Winget..."
+    #Check if winget is installed
+    if (!(Test-WG)) {
+        #Install winget
         Enable-WG
-        Write-Log -Message "Winget installed. Starting installation for application: $appid"
-        $app = & $Winget search -u $appid
-        if($app){
-            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
-            Write-Log -Message "Installing application: $appname"
-            & $Winget install -e --accept-source-agreements $appid
+
+        #Check if winget was installed successfully
+        if (Test-WG) {
+            Write-Log -Message "Winget was installed successfully." -Severity "Info"
         }
-        else{
-            Write-Log -Message "Application not found: $appid"
+        else {
+            Write-Log -Message "Winget could not be installed." -Severity "Error"
+            return $false
         }
     }
 
-    Write-Log -Message "Finished installing application: $appid"
+    #Install the specified application
+    Invoke-Expression -Command "$Winget install -appid $appid"
+
+    #Check if the installation was successful
+    $installedApp = Get-WGList | Where-Object id -eq $appid
+    if ($installedApp) {
+        Write-Log -Message "Application '$($installedApp.name)' was installed successfully." -Severity "Info"
+        $true
+    }
+    else {
+        Write-Log -Message "Application '$appid' could not be installed." -Severity "Error"
+        $false
+    }
 }
 
 #Following function will uninstall individual application based on application ID
