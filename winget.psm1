@@ -281,42 +281,33 @@ Function Parse-WingetListOutput {
 
 #following function attempts to upgrade based on the application ID input parameter $appid  
 Function Start-WGUpgrade {
+    Function Start-WGUpgrade {
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true, Position=1)]
-        [String]
-        $appid
+    Param(
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$appid
     )
 
-    Write-Log -Message "Starting upgrade for application: $appid"
-
-    if((Test-WG)){
-        $app = & $Winget search -u $appid
-        if($app){
-            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
-            Write-Log -Message "Upgrading application: $appname"
-            & $Winget install -e --accept-source-agreements $appid
-        }
-        else{
-            Write-Log -Message "Application not found: $appid"
-        }
-    }
-    else{
-        Write-Log -Message "Winget not found. Installing Winget..."
-        Enable-WG
-        Write-Log -Message "Winget installed. Starting upgrade for application: $appid"
-        $app = & $Winget search -u $appid
-        if($app){
-            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
-            Write-Log -Message "Upgrading application: $appname"
-            & $Winget install -e --accept-source-agreements $appid
-        }
-        else{
-            Write-Log -Message "Application not found: $appid"
-        }
+    #Check if winget is installed
+    if (!(Test-WG)) {
+        Write-Log -Message "Winget is not installed." -Severity "Error"
+        return $false
     }
 
-    Write-Log -Message "Finished upgrading application: $appid"
+    #Upgrade the specified application
+    Invoke-Expression -Command "$Winget upgrade $appid"
+
+    #Check if the application was updated
+    $outdatedApps = Get-WGUpgrade | Where-Object id -eq $appid
+    if ($outdatedApps) {
+        Write-Log -Message "The following updates were installed: $($outdatedApps.name)" -Severity "Info"
+        $true
+    }
+    else {
+        Write-Log -Message "There were no updates available to install for the specified application." -Severity "Info"
+        $false
+    }
 }
 
 #Following function will install individual application based on application ID
