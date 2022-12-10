@@ -419,10 +419,9 @@ Function Upgrade-Application {
     #future use
     $FailedToUpgrade = $false
         
-    $appversion = (Get-WGList | Where-Object Id -match $appid).Version
-    $availversion = (Get-WGList | Where-Object Id -match $appid).AvailableVersion
+    $appversion = $app.Version
+    $availversion = $app.AvailableVersion
 
-    #this is not working
     Write-Log -Message "UPGRADE START FOR APPLICATION ID: '$appid'" -Severity "Info"
     Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"
 
@@ -430,7 +429,7 @@ Function Upgrade-Application {
     $results = & $Winget upgrade --id $appid --all --accept-package-agreements --accept-source-agreements -h 
     
     # Remove whitespace from $results and filter out unwanted output
-    $results = $results -replace '\s+', '' | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"}
+    $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
     # Output the filtered results to the log file
     $results | Out-File -Append -FilePath $logfile
 
