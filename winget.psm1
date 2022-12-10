@@ -293,7 +293,7 @@ Function Start-WGUpgrade {
     Write-Log -Message "UPGRADE START FOR APPLICATION ID: '$appid'" -Severity "Info"
     Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"
     
-    #Run winget
+    #Run winget upgrade
     $results = & $Winget upgrade --id $appId --all --accept-package-agreements --accept-source-agreements -h 
     $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Out-file -Append -FilePath $logfile 
 
