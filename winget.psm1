@@ -433,9 +433,15 @@ Function Upgrade-Application {
     #Run winget upgrade
     $results = & $Winget upgrade --id $appid --all --accept-package-agreements --accept-source-agreements -h 
     
-    $results | Where-Object {$_ -notmatch "^\s*$|-.\\|\||^-|MB \/|KB \/|GB \/|B \/"} | Where-Object {$_ -match "\p{IsBasicLatin}"}
+# Filter the output to select only the lines that match certain criteria
+    $filteredResults = $results | Where-Object {
+        # Use a regular expression to match lines that contain words with basic Latin characters
+        # and no whitespace at the beginning or end of the line
+        $_ -match '^[A-Za-z]+$'
+    }
+
     # Output the filtered results to the log file
-    $results | Out-File -Append -FilePath $logfile
+    $filteredResults | Out-File -Append -FilePath $logfile
 
     #Check if application updated properly
     if(Get-WGUpgrade| Where-Object id -eq $appid) {
