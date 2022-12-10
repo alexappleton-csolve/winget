@@ -418,6 +418,9 @@ Function Upgrade-Application {
     )
     #future use
     $FailedToUpgrade = $false
+
+    # Remove the trailing white space from the app ID
+    $appID = $appid.TrimEnd()
         
     # Get the app version and available version from the Get-WGList function
     $appInfo = Get-WGList | Where-Object Id -match $appid
@@ -425,10 +428,7 @@ Function Upgrade-Application {
     $availversion = $appInfo.AvailableVersion
 
     Write-Log -Message "UPGRADE START FOR APPLICATION ID: '$appid'" -Severity "Info"
-    Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"
-
-     # Remove the trailing white space from the app ID
-    $appID = $appid.TrimEnd()
+    Write-Log -Message "Upgrading from $appversion to $availversion..." -Severity "Info"  
 
     #Run winget upgrade
     $results = & $Winget upgrade --id $appid --all --accept-package-agreements --accept-source-agreements -h 
