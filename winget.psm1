@@ -61,7 +61,7 @@ Function Write-Log {
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logMessage = "[$timestamp] [$Severity] $Message"
 
-    Write-Output $logMessage | Out-File -FilePath $logfile -Append
+    Add-Content -Path $logfile -Value $logMessage
 }
 
 #archive existing logfile
