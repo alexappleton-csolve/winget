@@ -305,7 +305,6 @@ Function Start-WGUpgrade {
     }
 }
 
-
 #Following function will install individual application based on application ID
 Function Start-WGInstall {
     [cmdletbinding()]
