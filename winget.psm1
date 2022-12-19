@@ -330,7 +330,7 @@ Function Start-WGInstall {
     }
 
     #Install the specified application
-    Invoke-Expression -Command "$Winget install -appid $appid"
+    $results = & $Winget install -appid $appid
 
     #Check if the installation was successful
     $installedApp = Get-WGList | Where-Object id -eq $appid
