@@ -296,12 +296,12 @@ Function Start-WGUpgrade {
         #need to trim trailing whitespace from ids so they dont send as part of id
         # Loop through each appid and call Upgrade-Application for each appid
         foreach ($id in $appids) {
-            Upgrade-Application -appid $id
+            Upgrade-Application --id $id
             continue
         }
     }
     else {
-        Upgrade-Application -appid $appid
+        Upgrade-Application --id $appid
     }
 }
 
@@ -330,7 +330,7 @@ Function Start-WGInstall {
     }
 
     #Install the specified application
-    & $Winget install -appid $appid
+    & $Winget install --id $appid
 
     #Check if the installation was successful
     $installedApp = Get-WGList | Where-Object id -eq $appid
