@@ -330,7 +330,21 @@ Function Start-WGInstall {
     }
 
     #Install the specified application
-    $results = & $Winget install -appid $appid
+    $results = & $Winget install --appid $appid | out-String
+
+    # Normalize the output to convert the whitespace characters to regular space characters
+    $normalizedResults = $results.Normalize()
+    
+    # Filter the output to select only the lines that match certain criteria
+    $filteredResults = $normalizedResults | Where-Object {
+        # Use a regular expression to match lines that contain words with basic Latin characters - still needs work
+         $_ -match '[A-Za-z].*[A-Za-z]'
+    }
+
+    $filteredResults = [regex]::Replace($filteredResults, "[^\p{IsBasicLatin}]", "")
+
+    # Output the filtered results to the log file
+    $filteredResults | Out-File -Append -FilePath $logfile
 
     #Check if the installation was successful
     $installedApp = Get-WGList | Where-Object id -eq $appid
