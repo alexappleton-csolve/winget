@@ -120,7 +120,7 @@ Function Enable-WG {
                     Write-Log -Message "Winget preview out of date, updating to $latestPreviewVersion"
                     Invoke-WebRequest -Uri $previewUrl -OutFile $dl -ErrorAction Stop
                     Write-Log -Message "Winget preview downloaded to $dl"
-                    Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense
+                    Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense | Out-File -FilePath $logfile -Append
                     Write-Log -Message "Winget preview updated successfully"
                 }
                 Else {
@@ -153,8 +153,8 @@ Function Enable-WG {
             # Download and install the stable release of Winget
             Write-Log -Message "Downloading winget from $wgdl"
             Invoke-WebRequest -Uri $wgdl -OutFile $dl -ErrorAction Stop
-            Write-Log -Message "Winget downloaded to $dl"
-            Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense
+            Write-Log -Message "Winget downloaded to $dl" 
+            Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense | Out-File -FilePath $logfile -Append
             Write-Log -Message "Winget installed successfully"
         }
     }
