@@ -336,6 +336,8 @@ Function Start-WGInstall {
         [string]$appid
     )
 
+    Write-Log -Message "Starting installation for application: $appid" -Severity "Info"
+    
     #Install the specified application
     $results = & $Winget install --id $appid | out-String
     $filteredResults = Process-WingetResults -results $Results
@@ -364,7 +366,7 @@ Function Start-WGUninstall {
         $appid
     )
 
-    Write-Log -Message "Starting uninstallation for application: $appid"
+    Write-Log -Message "Starting uninstallation for application: $appid" -Severity "Info"
 
     $app = Get-WGList | Where-Object id -like "$appid*"
 
