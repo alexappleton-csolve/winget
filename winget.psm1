@@ -159,9 +159,6 @@ Function Enable-WG {
             Write-Log -Message "Winget installed successfully"
         }
     }
-    Catch {
-        Write-Log -Message "Error installing Winget: $_" -Severity "Error"
-    }
 }
 
 #Following function will list installed applications
