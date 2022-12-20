@@ -319,14 +319,6 @@ Function Start-WGInstall {
         #Install winget
         Enable-WG
 
-        #Check if winget was installed successfully
-        if (Test-WG) {
-            Write-Log -Message "Winget was installed successfully." -Severity "Info"
-        }
-        else {
-            Write-Log -Message "Winget could not be installed." -Severity "Error"
-            return $false
-        }
     }
 
     #Install the specified application
