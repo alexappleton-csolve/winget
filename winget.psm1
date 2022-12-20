@@ -314,13 +314,6 @@ Function Start-WGInstall {
         [string]$appid
     )
 
-    #Check if winget is installed
-    if (!(Test-WG)) {
-        #Install winget
-        Enable-WG
-
-    }
-
     #Install the specified application
     $results = & $Winget install --id $appid | out-String
 
