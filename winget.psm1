@@ -385,15 +385,13 @@ Function Start-WGUninstall {
 
 #Following function will uninstall winget from the system
 Function Uninstall-WG {
-    #Find the winget executable
-    $Winget = Get-Command winget -ErrorAction SilentlyContinue
 
-    if ($Winget) {
+    if (Test-WG) {
         #Uninstall winget
         & $Winget uninstall --accept-source-agreements
 
         #Check if winget was uninstalled successfully
-        if (!(Test-Path -Path $Winget.Path)) {
+        if (!(Test-WG)) {
             Write-Log -Message "Winget was uninstalled successfully." -Severity "Info"
             $true
         }
