@@ -31,7 +31,6 @@
         Start-WGInstall: Installs individual application based on application ID. appid parameter is mandatory
         Start-WGUninstall: Uninstalls individual application based on application ID.  appid parameter is mandatory
         Test-WG: Tests winget path
-        Uninstall-WG: Uninstalls Winget
         Upgrade-Application: Runs the actual process of upgrading and parsing the results of the upgrade
         More functions to come!
 
@@ -390,32 +389,7 @@ Function Start-WGUninstall {
         else {
             Write-Log -Message "Application '$appid' uninstalled." -Severity "Info"
             $true
-        }
-
-     
-}
-
-#Following function will uninstall winget from the system
-Function Uninstall-WG {
-
-    if (Test-WG) {
-        #Uninstall winget
-        & $Winget uninstall --accept-source-agreements
-
-        #Check if winget was uninstalled successfully
-        if (!(Test-WG)) {
-            Write-Log -Message "Winget was uninstalled successfully." -Severity "Info"
-            $true
-        }
-        else {
-            Write-Log -Message "Winget could not be uninstalled." -Severity "Error"
-            $false
-        }
-    }
-    else {
-        Write-Log -Message "Winget is not installed." -Severity "Error"
-        $false
-    }
+        }   
 }
 
 #Following function performs the winget upgrade procedure and captures the results
