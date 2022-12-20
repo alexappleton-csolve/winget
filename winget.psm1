@@ -152,8 +152,8 @@ Function Get-WGList {
         $listResult = & $Winget list --accept-source-agreements | out-string
     }
 
-    # Parse the output using the Parse-WingetListOutput function
-    $softwareList = Parse-WingetListOutput -ListResult $listResult
+    # Parse the output using the Process-WingetListOutput function
+    $softwareList = Process-WingetListOutput -ListResult $listResult
 
      # Sort the list of software by the Name property
     $softwareList = $softwareList | Sort-Object -Property name
@@ -218,8 +218,31 @@ function Get-WGUpgrade {
     return $upgradeList
 }
 
-#following function parses the results of winget - need to rename the verb to comply with standards
-Function Parse-WingetListOutput {
+#following function parses the results of winget - still needs work
+Function Process-WingetResults {
+    [CmdletBinding()]
+    Param(
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [string[]]$Results
+    )
+
+    # Normalize the output to convert the whitespace characters to regular space characters
+    $normalizedResults = $Results.Normalize()
+    
+    # Filter the output to select only the lines that match certain criteria
+    $filteredResults = $normalizedResults | Where-Object {
+        # Use a regular expression to match lines that contain words with basic Latin characters - still needs work
+         $_ -match '[A-Za-z].*[A-Za-z]'
+    }
+
+    $filteredResults = [regex]::Replace($filteredResults, "[^\p{IsBasicLatin}]", "")
+
+    return $filteredResults
+}
+
+#following function parses the results of winget
+Function Process-WingetListOutput {
     [CmdletBinding()]
     param (
         [Parameter(Mandatory=$true)]
@@ -315,17 +338,7 @@ Function Start-WGInstall {
 
     #Install the specified application
     $results = & $Winget install --id $appid | out-String
-
-    # Normalize the output to convert the whitespace characters to regular space characters
-    $normalizedResults = $results.Normalize()
-    
-    # Filter the output to select only the lines that match certain criteria
-    $filteredResults = $normalizedResults | Where-Object {
-        # Use a regular expression to match lines that contain words with basic Latin characters - still needs work
-         $_ -match '[A-Za-z].*[A-Za-z]'
-    }
-
-    $filteredResults = [regex]::Replace($filteredResults, "[^\p{IsBasicLatin}]", "")
+    $filteredResults = Process-WingetResults -results $Results
 
     # Output the filtered results to the log file
     $filteredResults | Out-File -Append -FilePath $logfile
@@ -357,18 +370,8 @@ Function Start-WGUninstall {
 
         if($app) {
             $results = & $Winget uninstall --id $appid | out-string
-
-            # Normalize the output to convert the whitespace characters to regular space characters
-            $normalizedResults = $results.Normalize()
-    
-            # Filter the output to select only the lines that match certain criteria
-            $filteredResults = $normalizedResults | Where-Object {
-                # Use a regular expression to match lines that contain words with basic Latin characters - still needs work
-                 $_ -match '[A-Za-z].*[A-Za-z]'
-            }
-
-            $filteredResults = [regex]::Replace($filteredResults, "[^\p{IsBasicLatin}]", "")
-
+            $filteredResults = Process-WingetResults -results $Results
+           
             # Output the filtered results to the log file
             $filteredResults | Out-File -Append -FilePath $logfile
 
