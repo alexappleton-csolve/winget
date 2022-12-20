@@ -92,6 +92,11 @@ Function Get-WGver {
 
 #Following function will enable winget.  Use the preview switch to install preview mode
 Function Enable-WG {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$false)]
+        [switch]$Preview
+    )
     Write-Log -Message "Installing Winget..."
 
     # Use the GitHub API to get the latest release of Winget
