@@ -72,8 +72,8 @@ if ([System.IO.File]::Exists($logfile)) {
 
 #Following function tests winget path
 Function Test-WG {
-    if (Test-Path -Path $winget) {
-        Invoke-Expression -Command "$Winget list --accept-source-agreements"
+    if (Test-Path -Path $Winget) {
+    	& $Winget list --accept-source-agreements
         $true
     }
     else {
@@ -84,7 +84,7 @@ Function Test-WG {
 #Following function returns winget version - need to bug squash here with invoke-expression
 Function Get-WGver {
     if((Test-WG)){
-        [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$winget").FileVersion
+        [System.Diagnostics.FileVersionInfo]::GetVersionInfo("$Winget").FileVersion
     }
     else{
         Write-Output "Missing"    
@@ -401,14 +401,14 @@ Function Start-WGUninstall {
 #Following function will uninstall winget from the system
 Function Uninstall-WG {
     #Find the winget executable
-    $winget = Get-Command winget -ErrorAction SilentlyContinue
+    $Winget = Get-Command winget -ErrorAction SilentlyContinue
 
-    if ($winget) {
+    if ($Winget) {
         #Uninstall winget
         Invoke-Expression -Command "$Winget uninstall --accept-source-agreements"
 
         #Check if winget was uninstalled successfully
-        if (!(Test-Path -Path $winget.Path)) {
+        if (!(Test-Path -Path $Winget.Path)) {
             Write-Log -Message "Winget was uninstalled successfully." -Severity "Info"
             $true
         }
@@ -473,4 +473,3 @@ Function Upgrade-Application {
         }
     Write-Log -Message "UPGRADE FINISHED FOR APPLICATION ID: '$appid'" -Severity "Info"
 }
-
