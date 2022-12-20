@@ -390,7 +390,7 @@ Function Uninstall-WG {
 
     if ($Winget) {
         #Uninstall winget
-        Invoke-Expression -Command "$Winget uninstall --accept-source-agreements"
+        & $Winget uninstall --accept-source-agreements
 
         #Check if winget was uninstalled successfully
         if (!(Test-Path -Path $Winget.Path)) {
