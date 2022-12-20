@@ -109,9 +109,7 @@ Function Enable-WG {
 
         # Check if the -Preview switch is specified
         If ($PSBoundParameters['Preview']) {
-            # Check if the release is a preview release
-            If ($release.prerelease -eq $true) {
-                # Get the version of the latest preview release
+            # Get the version of the latest preview release
                 $latestPreviewVersion = $release.tag_name.Substring(1)
 
                 # Compare the current version to the latest preview version
