@@ -234,8 +234,8 @@ Function Process-WingetResults {
     $filteredResults = $normalizedResults | Where-Object {
         # Use a regular expression to match lines that contain words with basic Latin characters - still needs work
         # $_ -match '[A-Za-z].*[A-Za-z]' 
-        -not [string]::IsNullOrWhiteSpace($_) -and
-        $_ -notmatch '\p{Cs}'
+        -not ($_ -match '^\s*$' -or $_ -match '   -  \\  |  /  -  \\  ')
+        
     }
 
     $filteredResults = [regex]::Replace($filteredResults, "[^\p{IsBasicLatin}]", "")
