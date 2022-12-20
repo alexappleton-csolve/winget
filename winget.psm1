@@ -330,7 +330,7 @@ Function Start-WGInstall {
     }
 
     #Install the specified application
-    $results = & $Winget install --appid $appid | out-String
+    $results = & $Winget install --id $appid | out-String
 
     # Normalize the output to convert the whitespace characters to regular space characters
     $normalizedResults = $results.Normalize()
