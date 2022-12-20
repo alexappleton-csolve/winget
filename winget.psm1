@@ -90,7 +90,7 @@ Function Get-WGver {
     }
 }
 
-#Following function will enable winget.  Use the preview switch to install preview mode
+#Following function will enable winget.  Use the preview switch to install preview mode.  Test more
 Function Enable-WG {
     [CmdletBinding()]
     param (
