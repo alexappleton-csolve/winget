@@ -332,7 +332,7 @@ Function Start-WGInstall {
     $filteredResults | Out-File -Append -FilePath $logfile
 
     #Check if the installation was successful
-    $installedApp = Get-WGList | Where-Object id -eq $appid
+    $installedApp = Get-WGList | Where-Object id -like "$appid*"
     if ($installedApp) {
         Write-Log -Message "Application '$($installedApp.name)' was installed successfully." -Severity "Info"
         $true
