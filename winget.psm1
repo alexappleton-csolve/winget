@@ -126,10 +126,6 @@ Function Enable-WG {
                 Else {
                     Write-Log -Message "Winget preview already up to date"
                 }
-            }
-            Else {
-                Write-Log -Message "No preview releases of Winget are available"
-            }
         }
         Else {
             Write-Log -Message "Winget already installed"
