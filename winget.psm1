@@ -354,33 +354,45 @@ Function Start-WGUninstall {
 
     Write-Log -Message "Starting uninstallation for application: $appid"
 
-    if((Test-WG)){
-        $app = & $Winget search -u $appid
-        if($app){
-            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
-            Write-Log -Message "Uninstalling application: $appname"
-            & $Winget uninstall -e --accept-source-agreements $appid
-        }
-        else{
-            Write-Log -Message "Application not found: $appid"
-        }
-    }
-    else{
-        Write-Log -Message "Winget not found. Installing Winget..."
-        Enable-WG
-        Write-Log -Message "Winget installed. Starting uninstallation for application: $appid"
-        $app = & $Winget search -u $appid
-        if($app){
-            $appname = $app | Select-Object -first 1 -ExpandProperty displayName
-            Write-Log -Message "Uninstalling application: $appname"
-            & $Winget uninstall -e --accept-source-agreements $appid
-        }
-        else{
-            Write-Log -Message "Application not found: $appid"
-        }
-    }
+    $app = Get-WGList | Where-Object id -like "$appid*"
 
-    Write-Log -Message "Finished uninstalling application: $appid"
+        if($app) {
+            $results = & $Winget uninstall --id $appid | out-string
+
+            # Normalize the output to convert the whitespace characters to regular space characters
+            $normalizedResults = $results.Normalize()
+    
+            # Filter the output to select only the lines that match certain criteria
+            $filteredResults = $normalizedResults | Where-Object {
+                # Use a regular expression to match lines that contain words with basic Latin characters - still needs work
+                 $_ -match '[A-Za-z].*[A-Za-z]'
+            }
+
+            $filteredResults = [regex]::Replace($filteredResults, "[^\p{IsBasicLatin}]", "")
+
+            # Output the filtered results to the log file
+            $filteredResults | Out-File -Append -FilePath $logfile
+
+        }
+        else {
+            Write-Log -Message "Application not found: $appid" -Severity "Error"
+            $false
+            return
+        }
+        
+    #Check if the uninstallation was successful
+    $installedApp = Get-WGList | Where-Object id -like "$appid*"
+
+        if ($installedApp) {
+            Write-Log -Message "Application '$($installedApp.name)' is still installed." -Severity "Error"
+            $false
+        }
+        else {
+            Write-Log -Message "Application '$appid' uninstalled." -Severity "Info"
+            $true
+        }
+
+     
 }
 
 #Following function will uninstall winget from the system
