@@ -93,46 +93,74 @@ Function Get-WGver {
 #Following function will enable winget.  Use the preview switch to install preview mode
 Function Enable-WG {
     Write-Log -Message "Installing Winget..."
-    If ((Test-Path -Path $Winget) -eq $true) {
-        Write-Log -Message "Winget already installed"
-        If ($PSBoundParameters['Preview']) {
-            Write-Log -Message "Winget preview already installed"
-        }
-    }
-    Else {
-        Try {
-            # Use the GitHub API to get the latest release of Winget
-            $release = Invoke-RestMethod -Uri "https://api.github.com/repos/microsoft/winget-cli/releases/latest"
 
-            # Check if the -Preview switch is specified
-            If ($PSBoundParameters['Preview']) {
-                # Check if the release is a preview release
-                If ($release.prerelease -eq $true) {
+    # Use the GitHub API to get the latest release of Winget
+    $release = Invoke-RestMethod -Uri "https://api.github.com/repos/microsoft/winget-cli/releases/latest"
+
+    # Check if Winget is already installed
+    If ((Test-Path -Path $Winget) -eq $true) {
+        # Get the current version of Winget
+        $currentVersion = (Get-AppxPackage -Name Microsoft.DesktopAppInstaller).Version
+
+        # Check if the -Preview switch is specified
+        If ($PSBoundParameters['Preview']) {
+            # Check if the release is a preview release
+            If ($release.prerelease -eq $true) {
+                # Get the version of the latest preview release
+                $latestPreviewVersion = $release.tag_name.Substring(1)
+
+                # Compare the current version to the latest preview version
+                If ($currentVersion -lt $latestPreviewVersion) {
                     # Get the download URL for the Winget preview installer
                     $previewUrl = ($release.assets | Where-Object name -eq "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle").browser_download_url
 
-                    Write-Log -Message "Winget preview not installed, downloading from $previewUrl"
+                    Write-Log -Message "Winget preview out of date, updating to $latestPreviewVersion"
                     Invoke-WebRequest -Uri $previewUrl -OutFile $dl -ErrorAction Stop
                     Write-Log -Message "Winget preview downloaded to $dl"
-                    Start-Process -FilePath $dl -ArgumentList "/quiet", "/norestart" -Wait
-                    Write-Log -Message "Winget preview installed successfully"
+                    Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense
+                    Write-Log -Message "Winget preview updated successfully"
                 }
                 Else {
-                    Write-Log -Message "No preview releases of Winget are available"
+                    Write-Log -Message "Winget preview already up to date"
                 }
             }
             Else {
-                # Download and install the stable release of Winget
-                Write-Log -Message "Downloading winget from $wgdl"
-                Invoke-WebRequest -Uri $wgdl -OutFile $dl -ErrorAction Stop
-                Write-Log -Message "Winget downloaded to $dl"
-                Start-Process -FilePath $dl -ArgumentList "/quiet", "/norestart" -Wait
-                Write-Log -Message "Winget installed successfully"
+                Write-Log -Message "No preview releases of Winget are available"
             }
         }
-        Catch {
-            Write-Log -Message "Error installing Winget: $_" -Severity "Error"
+        Else {
+            Write-Log -Message "Winget already installed"
         }
+    }
+    Else {
+        # Check if the -Preview switch is specified
+        If ($PSBoundParameters['Preview']) {
+            # Check if the release is a preview release
+            If ($release.prerelease -eq $true) {
+                # Get the download URL for the Winget preview installer
+                $previewUrl = ($release.assets | Where-Object name -eq "Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle").browser_download_url
+
+                Write-Log -Message "Winget preview not installed, downloading from $previewUrl"
+                Invoke-WebRequest -Uri $previewUrl -OutFile $dl -ErrorAction Stop
+                Write-Log -Message "Winget preview downloaded to $dl"
+                Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense
+                Write-Log -Message "Winget preview installed successfully"
+            }
+            Else {
+                Write-Log -Message "No preview releases of Winget are available"
+            }
+        }
+        Else {
+            # Download and install the stable release of Winget
+            Write-Log -Message "Downloading winget from $wgdl"
+            Invoke-WebRequest -Uri $wgdl -OutFile $dl -ErrorAction Stop
+            Write-Log -Message "Winget downloaded to $dl"
+            Add-AppxProvisionedPackage -Online -PackagePath $dl -SkipLicense
+            Write-Log -Message "Winget installed successfully"
+        }
+    }
+    Catch {
+        Write-Log -Message "Error installing Winget: $_" -Severity "Error"
     }
 }
 
