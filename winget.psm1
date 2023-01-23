@@ -180,7 +180,7 @@ Function Get-WGSearch {
       $softwareAvailList = Process-WingetListOutput -ListResult $applistResult
   
        # Sort the list of software by the Name property
-      $softwareAvailList = $softwareList | Sort-Object -Property name
+      $softwareAvailList = $softwareAvailList | Sort-Object -Property name
   
       # Return the parsed list of software
       return $softwareAvailList
