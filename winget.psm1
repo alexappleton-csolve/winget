@@ -160,6 +160,32 @@ Function Enable-WG {
     }
 }
 
+#Following function will search for applications
+Function Get-WGSearch {
+    [CmdletBinding()]
+      param (
+          [Parameter(Mandatory=$false)]
+          [string]$appName
+      )
+  
+      # Get the output of the "winget list" command as a string
+      if ($appName) {
+          $applistResult = & $Winget search $appName | out-string
+      }
+      else {
+          $applistResult = & $Winget search --accept-source-agreements | out-string
+      }
+  
+      # Parse the output using the Process-WingetListOutput function
+      $softwareAvailList = Process-WingetListOutput -ListResult $applistResult
+  
+       # Sort the list of software by the Name property
+      $softwareAvailList = $softwareList | Sort-Object -Property name
+  
+      # Return the parsed list of software
+      return $softwareAvailList
+  }
+
 #Following function will list installed applications
 Function Get-WGList {
   [CmdletBinding()]
