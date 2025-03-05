@@ -103,10 +103,15 @@ Function Write-Log {
 #region Winget Utility Functions
 
 # Test winget availability
+# Test winget availability
 Function Test-WG {
     [CmdletBinding()]
     [OutputType([bool])]
     param()
+    
+    # Log the winget paths and the resulting winget executable path
+    Write-Log "Winget paths: $($script:WingetPaths -join ', ')" -Severity Debug
+    Write-Log "Winget executable before Test-Path check: $script:Winget" -Severity Debug
     
     if (-not (Test-Path -Path $script:Winget)) {
         Write-Log "Winget not found at expected path" -Severity Warning
