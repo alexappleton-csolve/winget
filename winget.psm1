@@ -596,16 +596,3 @@ Function Start-WGUninstall {
 }
 
 #endregion Application Management Functions
-
-# Export module functions
-Export-ModuleMember -Function @(
-    'Enable-WG',
-    'Get-WGList',
-    'Get-WGUpgrade',
-    'Get-WGVer',
-    'Start-WGUpgrade',
-    'Start-WGInstall',
-    'Start-WGUninstall',
-    'Test-WG',
-    'Write-Log'
-)
