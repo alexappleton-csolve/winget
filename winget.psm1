@@ -256,10 +256,13 @@ Function Process-WingetResults {
     
     # Filter the output to select only the lines that match certain criteria
     $filteredResults = $normalizedResults | Where-Object {
-        # Use a regular expression to match lines that contain words with basic Latin characters - still needs work
-        # $_ -match '[A-Za-z].*[A-Za-z]' 
-        -not ($_ -match '^\s*$' -or $_ -match '   -  \\  |  /  -  \\  ')
-        
+        # Exclude blank lines and known noise from winget
+        -not ($_ -match '^\s*$' -or $_ -match '  - \\  |  /  - \\  ')
+    }
+
+    $filteredResults = $filteredResults | ForEach-Object {
+        # Trim whitespace and collapse multiple spaces
+        ($_ -replace '\s{2,}', ' ').Trim()
     }
 
     $filteredResults = [regex]::Replace($filteredResults, "[^\p{IsBasicLatin}]", "")
